@@ -1,0 +1,91 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Professional Python Project Companion"
+  subtitle: "An Opinionated Guide to Professional Python Project Infrastructure"
+  author: "Denise M. Case"
+  repo-url: "https://github.com/denisecase/pup-up"
+  repo-actions:
+    - edit
+    - issue
+  chapters:
+    - index.qmd
+    - preface.qmd
+
+    - part: "The Professional Python Project"
+      chapters:
+        - chapters/project-infrastructure.qmd
+        - chapters/using-the-companion.qmd
+
+    - part: "Project Identity and Structure"
+      chapters:
+        - chapters/project-identity/readme.qmd
+        - chapters/project-identity/license.qmd
+        - chapters/project-identity/citation.qmd
+        - chapters/project-identity/changelog.qmd
+        - chapters/project-configuration/src-layout.qmd
+
+    - part: "Reproducible Project Configuration"
+      chapters:
+        - chapters/project-configuration/pyproject.qmd
+        - chapters/project-configuration/python-version.qmd
+        - chapters/project-configuration/lock-file.qmd
+
+    - part: "Consistent Working Environment"
+      chapters:
+        - chapters/working-environment/editorconfig.qmd
+        - chapters/working-environment/gitignore.qmd
+        - chapters/working-environment/gitattributes.qmd
+        - chapters/working-environment/vscode-settings.qmd
+        - chapters/working-environment/vscode-extensions.qmd
+
+    - part: "Local Quality and Automation"
+      chapters:
+        - chapters/quality-automation/ruff.qmd
+        - chapters/quality-automation/pyright.qmd
+        - chapters/quality-automation/pytest.qmd
+        - chapters/quality-automation/pre-commit.qmd
+        - chapters/quality-automation/markdownlint.qmd
+        - chapters/quality-automation/yamllint.qmd
+
+    - part: "Shared Automation and Maintenance"
+      chapters:
+        - chapters/github-automation/continuous-integration.qmd
+        - chapters/github-automation/documentation-deployment.qmd
+        - chapters/github-automation/link-checking.qmd
+        - chapters/github-automation/dependabot.qmd
+
+    - part: "Project Documentation"
+      chapters:
+        - chapters/project-documentation/zensical.qmd
+
+    - part: "Working with Agentic AI"
+      chapters:
+        - chapters/agentic-ai/overview.qmd
+        - chapters/agentic-ai/agents.qmd
+        - chapters/agentic-ai/claude.qmd
+
+    - part: "Putting It All Together"
+      chapters:
+      - chapters/putting-it-together.qmd
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles/custom.scss
+    code-copy: true
+    toc: true
+
+  epub:
+    toc: true
+
+  pdf:
+    documentclass: scrreprt
+    toc: true
+    keep-tex: false
+
+execute:
+  freeze: auto

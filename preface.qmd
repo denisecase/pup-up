@@ -1,0 +1,13 @@
+# Preface
+
+This is a concise guide to selected infrastructure for a professional Python project.
+
+The companion is intentionally opinionated.
+Professional projects require concrete engineering decisions.
+Examples reflect choices I find valuable enough to use across professionally maintained
+Python repositories.
+
+Like everything in our rapidly-changing field, choices will evolve.
+
+Readers are encouraged to understand the reasoning, adopt what serves their
+work, and create their own project standards.

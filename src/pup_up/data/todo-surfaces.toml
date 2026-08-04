@@ -1,0 +1,61 @@
+# src/pup_up/data/todo-surfaces.toml
+
+[review_paths]
+default = [
+  "README.md",
+]
+
+pyproject = [
+  "pyproject.toml",
+  "uv.lock",
+  "docs/index.md",
+]
+
+python_src = [
+  "src/**",
+  "tests/**",
+]
+
+zensical = []
+
+notebooks = [
+  "notebooks/**",
+]
+
+sql = [
+  "sql/**",
+]
+
+raw_data = [
+  "data/raw/**",
+]
+
+[confirmations]
+default = [
+  "repo-specific project description is accurate",
+]
+
+pyproject = [
+  "package metadata is correct",
+  "dependency groups match current tooling expectations",
+]
+
+python_src = [
+  "tests still match intended behavior",
+]
+
+zensical = [
+  "docs site navigation and landing page are correct",
+]
+
+notebooks = [
+  "notebook execution state is intentional",
+]
+
+sql = [
+  "SQL examples and database paths are current",
+]
+
+raw_data = [
+  "raw data files are intentional and appropriate to commit",
+]

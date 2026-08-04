@@ -1,0 +1,44 @@
+# ============================================================
+# CITATION.cff (How to cite this project)
+# ============================================================
+
+# REQ.UNIVERSAL: Professional open projects SHOULD include this file.
+# USAGE: See https://citation-file-format.github.io/ for details.
+
+cff-version: "1.2.0"
+message: "If you use this work, please cite it using the metadata in this file."
+type: software
+
+title: "pup-up"
+# Set version and date-released to match latest git tag or release.
+version: "0.0.1"
+date-released: "2026-08-04"
+
+authors:
+  - family-names: Case
+    given-names: Denise M.
+    orcid: "https://orcid.org/0000-0001-6165-7389"
+    affiliation: "Northwest Missouri State University, School of Computer Science and Information Systems, Maryville, MO, USA"
+
+repository-code: "https://github.com/denisecase/pup-up"
+url: "https://github.com/denisecase/pup-up"
+
+license: MIT
+
+abstract: >
+  Command-line tool for bringing professional Python repositories 
+  up to a managed baseline using canonical templates 
+  while preserving repository-specific work.
+
+keywords:
+  - repository-baseline
+  - repository-templates
+  - template-management
+  - developer-tooling
+  - command-line-tool
+  - python
+  - uvx
+  - automation
+  - software-architecture
+  - accountable-repositories
+

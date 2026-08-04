@@ -1,0 +1,235 @@
+# ============================================================
+# pyproject.toml
+# ============================================================
+
+# ============================================================
+# SECTION 1: PROJECT IDENTITY (name, version, dependencies)
+# ============================================================
+
+[project]
+name = "pup-up"
+readme = "README.md"
+requires-python = ">=3.14"
+dynamic = ["version"] # WHY: Version is computed from git tags at build time.
+description = "Command-line tool for the opinionated guide to professional python projects; bringing repositories up to a managed baseline using layered canonical templates."
+license = { file = "LICENSE" }
+authors = [
+    { name = "Denise Case" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+keywords = [
+    "repository-baseline",
+    "repository-templates",
+    "template-management",
+    "developer-tooling",
+    "command-line-tool",
+    "python",
+    "uvx",
+    "automation",
+    "software-architecture",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+# WHY: Optional dependency groups keep the core install clean and focused.
+dev = [
+    # REQ.DEV.DEPS: External packages used for linting, testing, type checking, etc.
+    "build", # WHY: Build frontend for packaging validation when needed.
+    "pre-commit",
+    "pyright",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "twine", # WHY: Required for artifact validation: twine check dist/*.
+]
+
+docs = [
+    # REQ.DOCS.DEPS: External packages used to generate project documentation.
+    "zensical",
+    "mkdocstrings[python]", # WHY: Auto-generate API docs from docstrings.
+]
+
+[project.scripts]
+# WHY: pup-up matches the package name for direct uvx use.
+pup-up = "pup_up.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/denisecase/pup-up"
+Repository = "https://github.com/denisecase/pup-up"
+Documentation = "https://denisecase.github.io/pup-up/"
+Issues = "https://github.com/denisecase/pup-up/issues"
+Changelog = "https://github.com/denisecase/pup-up/blob/main/CHANGELOG.md"
+
+# ============================================================
+# SECTION 2: TOOL CONFIGURATION
+# ============================================================
+
+# === PYRIGHT ===
+
+[tool.pyright]
+# WHY: Strict type checking helps catch bugs early.
+include = ["src", "tests"]
+extraPaths = ["src"]
+exclude = ["**/node_modules", "**/.*", ".venv", "**/__pycache__", "dist", "build"]
+pythonVersion = "3.14"
+reportMissingTypeStubs = "none"
+reportPrivateUsage = "none"
+typeCheckingMode = "basic"
+
+# === PYTEST ===
+
+[tool.pytest.ini_options]
+# WHY: Consistent test discovery and coverage visibility.
+minversion = "9.0"
+testpaths = ["tests"]
+addopts = "--cov=pup_up --cov-report=term-missing --cov-fail-under=60"
+
+# === RUFF ===
+
+[tool.ruff]
+# WHY: Use one fast tool for Python linting and formatting across maintained repos.
+# WHY: Keep generated, cached, virtualenv, build, and docs-site output out of lint scope.
+exclude = [
+    ".eggs",
+    "*.egg-info",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "site",
+]
+# WHY: Match Black/Ruff formatter default; keeps diffs compact and predictable.
+line-length = 88
+
+# WHY: Avoid unstable preview behavior unless a repo intentionally opts in.
+preview = false
+
+# WHY: Match the current repo target; modernization rules should track the supported runtime.
+target-version = "py314"
+
+# WHY: Do not apply fixes Ruff marks unsafe in shared/release-oriented repos.
+unsafe-fixes = false
+
+
+[tool.ruff.format]
+# WHY: Spaces are the Python standard and match formatter defaults.
+indent-style = "space"
+
+# WHY: Preserve platform-appropriate line endings across Windows/macOS/Linux contributors.
+line-ending = "auto"
+
+# WHY: Preserve existing quote style to minimize meaningless diff churn.
+quote-style = "preserve"
+
+
+[tool.ruff.lint]
+# WHY: Professional baseline for research, package, and infrastructure code.
+# WHY: Catch correctness issues, import disorder, modernization drift, bug patterns,
+# WHY: path handling problems, avoidable complexity, weak return flow, doc gaps,
+# WHY: and obvious security hazards.
+select = [
+    "E",   # WHY: Basic syntax and structural correctness.
+    "F",   # WHY: Undefined names, unused imports, and likely real errors.
+    "W",   # WHY: Warnings that catch easy issues early.
+    "I",   # WHY: Deterministic import ordering for stable diffs.
+    "UP",  # WHY: Modern Python constructs for the pinned Python version.
+    "B",   # WHY: Common bug patterns.
+
+    "PTH", # WHY: Prefer pathlib for cross-platform path handling.
+    "C4",  # WHY: Comprehension correctness and clarity.
+    "SIM", # WHY: Remove obvious unnecessary complexity.
+    "RET", # WHY: Keep return behavior explicit and readable.
+
+    "D",   # WHY: Public/reusable code needs docstrings.
+    "S",   # WHY: Catch obvious security hazards before release or reuse.
+]
+
+ignore = [
+    "E501", # WHY: Line length is handled by the formatter, not Ruff lint.
+    "D203", # WHY: Conflicts with D211; use the no-blank-line convention.
+    "D213", # WHY: Conflicts with D212; use first-line summary convention.
+    "S101", # WHY: Allow assert for tests and intentional internal invariants.
+]
+
+
+[tool.ruff.lint.isort]
+# WHY: Ordered imports keep reviews and generated diffs readable.
+force-sort-within-sections = true
+
+
+[tool.ruff.lint.per-file-ignores]
+# WHY: Package __init__ files often re-export public API names.
+"src/**/__init__.py" = ["F401"]
+
+# WHY: Generated/version files are build metadata, not authored implementation.
+"src/**/_version.py" = ["ALL"]
+
+# WHY: Tests prioritize behavior clarity over public API documentation.
+# WHY: B011/B018 may be acceptable in tests depending on the assertion pattern.
+# WHY: S101 is retained here even though it is also globally ignored.
+"tests/**/*.py" = ["D", "B018", "B011", "S101"]
+
+# WHY: Marker files are intentionally empty/non-Python content.
+"src/**/py.typed" = ["ALL"]
+
+[tool.ruff.lint.pydocstyle]
+# REQ: Google style is the project-wide docstring convention.
+convention = "google"
+
+# ============================================================
+# SECTION 3: BUILD SYSTEM
+# ============================================================
+#
+# REQ.PROJECT: A build system MUST be declared for package discovery and publishing.
+# REQ.STRUCTURE: All importable code MUST live under src/.
+# WHY src/ layout: Prevents accidental imports from the repo root and ensures
+# consistent behavior across IDEs, tests, CI, and PyPI.
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling", "hatch-vcs"]
+
+[tool.hatch.build.hooks.vcs]
+# WHY: Writes computed version into src/*/_version.py at build time.
+version-file = "src/pup_up/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/pup_up",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CITATION.cff",
+    "pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pup_up"]
+
+[tool.hatch.build.targets.wheel.force-include]
+ "src/pup_up/data/defaults.toml" = "pup_up/data/defaults.toml"
+ "src/pup_up/data/todo-surfaces.toml" = "pup_up/data/todo-surfaces.toml"
+
+[tool.hatch.version]
+# Used when no git tags are present. Keep in sync with CITATION.cff.
+fallback-version = "0.0.1"
+# WHY: Version is derived from git tags at build time.
+source = "vcs"
+# WHY: Allow hatch-vcs to find the Git root from isolated build contexts.
+search_parent_directories = true
+tag-pattern = "^(?:v)?(?P<version>\\d+\\.\\d+\\.\\d+)$"

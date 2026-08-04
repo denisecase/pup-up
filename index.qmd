@@ -1,0 +1,21 @@
+---
+title: "Professional Python Project Companion"
+subtitle: "An Opinionated Guide to Professional Python Project Infrastructure"
+author: "Denise M. Case, P.E, PhD (licensed in Kansas)"
+---
+
+A professional Python project includes more than good source code.
+It includes the files, conventions, automation, documentation, and validation
+that allow the project to be developed, maintained, and shared reliably.
+
+This companion explains those parts.
+
+It presents one coherent and intentionally opinionated approach to professional
+Python project infrastructure.
+The particular tools and configurations are chosen for their popularity and longevity,
+but like everything, can be expected to evolve.
+The engineering concerns of consistency, reproducibility,
+validation, collaboration, documentation, and maintenance that they address will remain.
+
+Maintained canonical examples are included and may be
+forked, adapted, and evolved for other projects, teams, and organizations.

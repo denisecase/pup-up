@@ -1,0 +1,29 @@
+# `.editorconfig`
+
+## Purpose
+
+`.editorconfig` defines basic text-file conventions that compatible editors
+apply automatically.
+
+It helps contributors using different editors and operating systems produce
+files with consistent indentation, encoding, line endings, and final-newline
+behavior.
+
+## Maintenance
+
+Change `.editorconfig` when the project adopts different text conventions or
+begins using file types that require different settings.
+
+Most projects rarely need to modify it after the initial decisions have been
+made.
+
+## Canonical example
+
+See the maintained annotated
+[`.editorconfig`](../../canonical/.editorconfig).
+
+::: {.callout-note title="Workshop companion"}
+`.editorconfig` establishes consistent working conditions. It is the level
+workbench that allows different people to bring different tools without
+producing incompatible work.
+:::

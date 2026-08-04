@@ -1,0 +1,55 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Professional Python Project Companion",
+    "section": "",
+    "text": "A professional Python project includes more than good source code. It includes the files, conventions, automation, documentation, and validation that allow the project to be developed, maintained, and shared reliably.\nThis companion explains those parts.\nIt presents one coherent and intentionally opinionated approach to professional Python project infrastructure. The particular tools and configurations are chosen for their popularity and longevity, but like everything, can be expected to evolve. The engineering concerns of consistency, reproducibility, validation, collaboration, documentation, and maintenance that they address will remain.\nMaintained canonical examples are included and may be forked, adapted, and evolved for other projects, teams, and organizations.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Professional Python Project Companion</span>"
+    ]
+  },
+  {
+    "objectID": "preface.html",
+    "href": "preface.html",
+    "title": "2  Preface",
+    "section": "",
+    "text": "This is a concise guide to selected infrastructure for a professional Python project.\nThe companion is intentionally opinionated. Professional projects require concrete engineering decisions. Examples reflect choices I find valuable enough to use across professionally maintained Python repositories.\nLike everything in our rapidly-changing field, choices will evolve.\nReaders are encouraged to understand the reasoning, adopt what serves their work, and create their own project standards.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Preface</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/working-environment/editorconfig.html",
+    "href": "chapters/working-environment/editorconfig.html",
+    "title": "13  .editorconfig",
+    "section": "",
+    "text": "13.1 Purpose\n.editorconfig defines basic text-file conventions that compatible editors apply automatically.\nIt helps contributors using different editors and operating systems produce files with consistent indentation, encoding, line endings, and final-newline behavior.",
+    "crumbs": [
+      "Consistent Working Environment",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>`.editorconfig`</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/working-environment/editorconfig.html#maintenance",
+    "href": "chapters/working-environment/editorconfig.html#maintenance",
+    "title": "13  .editorconfig",
+    "section": "13.2 Maintenance",
+    "text": "13.2 Maintenance\nChange .editorconfig when the project adopts different text conventions or begins using file types that require different settings.\nMost projects rarely need to modify it after the initial decisions have been made.",
+    "crumbs": [
+      "Consistent Working Environment",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>`.editorconfig`</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/working-environment/editorconfig.html#canonical-example",
+    "href": "chapters/working-environment/editorconfig.html#canonical-example",
+    "title": "13  .editorconfig",
+    "section": "13.3 Canonical example",
+    "text": "13.3 Canonical example\nSee the maintained annotated .editorconfig.\n\n\n\n\n\n\nNoteWorkshop companion\n\n\n\n.editorconfig establishes consistent working conditions. It is the level workbench that allows different people to bring different tools without producing incompatible work.",
+    "crumbs": [
+      "Consistent Working Environment",
+      "<span class='chapter-number'>13</span>  <span class='chapter-title'>`.editorconfig`</span>"
+    ]
+  }
+]
