@@ -46,7 +46,8 @@ The standard layer model replaces as specificity increases:
 - `ALL-PY` for Python repository tooling.
 - `ALL-PY-SRC` for Python repositories with a `src/` package layout.
 
-This keeps the baseline additive instead of duplicative.
+Layers are additive across managed files while allowing a more specific
+layer to supersede an earlier version of the same file.
 
 ## Managed and Preserved Surfaces
 
@@ -56,15 +57,6 @@ A preserved surface is project-specific and
 should not be overwritten automatically.
 Examples include source code, tests, notebooks, data files,
 SQL files, and project-specific documentation.
-
-## Long-Term Goal
-
-The goal of `pup-up` is to make repository maintenance boring.
-
-A maintainer should be able to open one repository,
-bring the shared infrastructure up to the current baseline,
-review the remaining project-specific work,
-and continue working on the actual package or software artifact.
 
 ## See Also
 
