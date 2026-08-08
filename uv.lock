@@ -548,10 +548,22 @@ wheels = [
 ]
 
 [[package]]
+name = "pup-core"
+version = "0.0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/6f/9af9b8128b51c857db7537bc4bc637bc1d094fbfacccb231e68406a55912/pup_core-0.0.4.tar.gz", hash = "sha256:d2318d6f718b9b688c157c6140796c7ea8b063abeeaaaee1bce22c15e95a4c4b", size = 14917, upload-time = "2026-08-08T21:47:36.135Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/87/49/47d04e371d6585c8ae8b8c3a836032f592edaf44c4a9e4c6064cacc2537f/pup_core-0.0.4-py3-none-any.whl", hash = "sha256:3d37e594f6c2c9de1ddcba4d5442b9f0a1c8de4df4bf60ed1e830413736c182c", size = 14640, upload-time = "2026-08-08T21:47:34.915Z" },
+]
+
+[[package]]
 name = "pup-up"
 source = { editable = "." }
+dependencies = [
+    { name = "pup-core" },
+]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "build" },
     { name = "pre-commit" },
@@ -567,18 +579,22 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "build", marker = "extra == 'dev'" },
-    { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'" },
-    { name = "pre-commit", marker = "extra == 'dev'" },
-    { name = "pyright", marker = "extra == 'dev'" },
-    { name = "pytest", marker = "extra == 'dev'" },
-    { name = "pytest-cov", marker = "extra == 'dev'" },
-    { name = "ruff", marker = "extra == 'dev'" },
-    { name = "twine", marker = "extra == 'dev'" },
-    { name = "zensical", marker = "extra == 'docs'" },
+requires-dist = [{ name = "pup-core", specifier = ">=0.0.4" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "build" },
+    { name = "pre-commit" },
+    { name = "pyright" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+    { name = "twine" },
 ]
-provides-extras = ["dev", "docs"]
+docs = [
+    { name = "mkdocstrings", extras = ["python"] },
+    { name = "zensical" },
+]
 
 [[package]]
 name = "pycparser"

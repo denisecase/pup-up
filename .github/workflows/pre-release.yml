@@ -1,7 +1,7 @@
 # ============================================================
-# .github/workflows/pre-release.yml (ALL-PY-SRC-PYPI-REPOS)
+# .github/workflows/pre-release.yml (ALL-PY-SRC-PYPI-REPOS AFTER dep groups in pyproject.toml)
 # ============================================================
-# Updated: 2026-06-27
+# Updated: 2026-08-08
 #
 # WHY: Validate tagged Python package artifacts before release.
 # REQ: Reusable by PyPI package repositories.
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30 # WHY: Prevent hanging jobs. If over, it is likely stuck.
     env:
-      PYTHON_VERSION: "3.15"
+      UV_PYTHON: "3.15"
 
     steps:
 
@@ -44,8 +44,10 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: A3) Install Python ${{ env.PYTHON_VERSION }}
-        run: uv python install ${{ env.PYTHON_VERSION }}
+      - name: A3) Install Python ${{ env.UV_PYTHON }} in uv
+        run: uv python install ${{ env.UV_PYTHON }}
+        # WHY: Ensures the pinned Python version is available in CI.
+        # OBS: Does not modify the repo; uv manages the interpreter locally.
 
       - name: A4) Display versions
         run: |
@@ -89,7 +91,8 @@ jobs:
           echo "Artifact version matches tag."
 
       - name: B5) Sync all dependencies with frozen versions (in uv.lock)
-        run: uv sync --extra dev --extra docs --frozen
+        run: uv sync --frozen
+        # REQ: Used with pyproject.toml [dependency-groups] to ensure all build and test tools are available.
 
       - name: B6) Validate built artifacts
         run: uvx twine check dist/*

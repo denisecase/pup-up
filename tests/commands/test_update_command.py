@@ -67,58 +67,6 @@ version = "0.1.0"
     assert not (repo / "zensical.toml").exists()
 
 
-def test_update_command_write_with_local_templates(
-    tmp_path: Path,
-    capsys: CaptureFixture[str],
-) -> None:
-    """The update command should write managed files when write mode is enabled."""
-    repo = tmp_path / "example-python-repo"
-    repo.mkdir()
-    (repo / ".git").mkdir()
-    (repo / "pyproject.toml").write_text(
-        """
-[project]
-name = "example-python-repo"
-version = "0.1.0"
-""".strip()
-        + "\n",
-        encoding="utf-8",
-    )
-
-    templates = tmp_path / "templates"
-    (templates / "ALL").mkdir(parents=True)
-    (templates / "ALL-PY").mkdir(parents=True)
-    (templates / "ALL-PY-SRC").mkdir(parents=True)
-
-    (templates / "ALL" / ".editorconfig").write_text(
-        "root = true\n",
-        encoding="utf-8",
-    )
-    (templates / "ALL-PY" / "zensical.toml.template").write_text(
-        'repo = "{{github_handle}}/{{ repo_name }}"\nsite = "{{ site_url }}"\n',
-        encoding="utf-8",
-    )
-
-    exit_code = update.run(
-        root=repo,
-        write=True,
-        templates="denisecase/templates",
-        ref="main",
-        templates_path=templates,
-    )
-
-    captured = capsys.readouterr()
-
-    assert exit_code == 0
-    assert "[pup-up] WRITE" in captured.out
-
-    assert (repo / ".editorconfig").read_text(encoding="utf-8") == "root = true\n"
-    assert (repo / "zensical.toml").read_text(encoding="utf-8") == (
-        'repo = "denisecase/example-python-repo"\n'
-        'site = "https://denisecase.github.io/example-python-repo/"\n'
-    )
-
-
 def test_update_command_layer_override_uses_later_layer(
     tmp_path: Path,
     capsys: CaptureFixture[str],

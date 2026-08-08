@@ -12,7 +12,8 @@ readme = "README.md"
 requires-python = ">=3.15"
 dynamic = ["version"] # WHY: Version is computed from git tags at build time.
 description = "Command-line tool for the opinionated guide to professional python projects; bringing repositories up to a managed baseline using layered canonical templates."
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Denise Case" },
 ]
@@ -20,7 +21,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.15",
@@ -42,19 +42,23 @@ keywords = [
     "software-architecture",
 ]
 
-dependencies = []
+dependencies = [
+    "pup-core>=0.0.4",
+]
 
-[project.optional-dependencies]
-# WHY: Optional dependency groups keep the core install clean and focused.
+[dependency-groups]
+# WHY: Development dependencies support maintaining and validating the project
+# but are not runtime dependencies or optional features of the published package.
+
 dev = [
     # REQ.DEV.DEPS: External packages used for linting, testing, type checking, etc.
-    "build", # WHY: Build frontend for packaging validation when needed.
-    "pre-commit",
-    "pyright",
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "twine", # WHY: Required for artifact validation: twine check dist/*.
+    "build",      # WHY: Build frontend for packaging validation when needed.
+    "pre-commit", # WHY: Pre-commit hooks for consistent formatting and linting.
+    "pyright",    # WHY: Type checking for static analysis and early bug detection.
+    "pytest",     # WHY: Test framework for unit and integration tests.
+    "pytest-cov", # WHY: Test coverage reporting for quality metrics and CI gating.
+    "ruff",       # WHY: Fast linting and formatting for Python code.
+    "twine",      # WHY: Required for artifact validation: twine check dist/*.
 ]
 
 docs = [
@@ -191,6 +195,14 @@ force-sort-within-sections = true
 # REQ: Google style is the project-wide docstring convention.
 convention = "google"
 
+# === UV ===
+
+[tool.uv]
+# WHY: Install all dependency groups defined by this repository by default.
+# This keeps the canonical setup command identical across project types while
+# allowing each repository to declare only the tooling it actually needs.
+default-groups = "all"
+
 # ============================================================
 # SECTION 3: BUILD SYSTEM
 # ============================================================
@@ -226,7 +238,7 @@ packages = ["src/pup_up"]
 
 [tool.hatch.version]
 # Used when no git tags are present. Keep in sync with CITATION.cff.
-fallback-version = "0.0.2"
+fallback-version = "0.0.3"
 # WHY: Version is derived from git tags at build time.
 source = "vcs"
 # WHY: Allow hatch-vcs to find the Git root from isolated build contexts.

@@ -3,8 +3,10 @@
 from collections.abc import Sequence
 from pathlib import Path
 
+from pup_core.base.types import RepositoryContext
+
 from pup_up.base.errors import UnsafePathError
-from pup_up.base.types import FileStatus, PlannedFile, RepositoryContext, UpdatePlan
+from pup_up.base.types import FileStatus, PlannedFile, UpdatePlan
 from pup_up.templates.fetch import (
     TemplateFile,
     TemplateSource,
@@ -23,6 +25,7 @@ __all__ = [
 def build_update_plan(
     *,
     target: RepositoryContext,
+    layers: tuple[str, ...],
     source: TemplateSource,
     protected_paths: frozenset[str] = frozenset(),
 ) -> UpdatePlan:
@@ -31,7 +34,7 @@ def build_update_plan(
 
     template_files = list_template_files(
         source=source,
-        layers=list(target.layers),
+        layers=list(layers),
     )
 
     for template_file in template_files:
@@ -45,6 +48,7 @@ def build_update_plan(
 
     return UpdatePlan(
         target=target,
+        layers=layers,
         files=tuple(planned_files),
     )
 
@@ -89,6 +93,7 @@ def filter_update_plan(
 
     return UpdatePlan(
         target=plan.target,
+        layers=plan.layers,
         files=filtered_files,
     )
 

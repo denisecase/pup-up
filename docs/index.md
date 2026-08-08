@@ -65,3 +65,7 @@ A maintainer should be able to open one repository,
 bring the shared infrastructure up to the current baseline,
 review the remaining project-specific work,
 and continue working on the actual package or software artifact.
+
+## See Also
+
+- [API](./api.md)

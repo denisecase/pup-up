@@ -17,7 +17,7 @@ def print_update_plan(plan: UpdatePlan, *, write: bool) -> None:
     print(f"[pup-up] {mode}")  # noqa: T201
     print(f"[pup-up] repo: {plan.target.repo_name}")  # noqa: T201
     print(f"[pup-up] root: {plan.target.root}")  # noqa: T201
-    print(f"[pup-up] layers: {' -> '.join(plan.target.layers)}")  # noqa: T201
+    print(f"[pup-up] layers: {' -> '.join(plan.layers)}")  # noqa: T201
     print("")  # noqa: T201
 
     counts = _status_counts(plan)

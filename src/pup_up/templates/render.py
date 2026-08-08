@@ -1,6 +1,6 @@
 """Minimal template rendering."""
 
-from pup_up.base.types import RepositoryContext
+from pup_core.base.types import RepositoryContext
 
 __all__ = ["render_template"]
 

@@ -13,6 +13,18 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.0.4] - 2026-08-08
+
+### Changed
+
+- Updated to use shared repository detection and core types from `pup-core`.
+- Moved template-layer inference into `pup-up`.
+- Moved template layers from repository context to the `pup-up` update plan.
+- Updated update planning, filtering, and terminal reporting to preserve and report template layers.
+- Updated tests for the new `pup-core` integration.
+
+---
+
 ## [0.0.2] - 2026-08-08
 
 ### Added
@@ -122,7 +134,8 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/denisecase/pup-up/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/denisecase/pup-up/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/denisecase/pup-up/releases/tag/v0.0.4
 [0.0.2]: https://github.com/denisecase/pup-up/releases/tag/v0.0.2
 [0.0.1]: https://github.com/denisecase/pup-up/releases/tag/v0.0.1
 

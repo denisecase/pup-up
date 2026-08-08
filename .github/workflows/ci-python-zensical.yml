@@ -1,5 +1,5 @@
 # ============================================================
-# .github/workflows/ci-python-zensical.yml (ALL-PY-SRC-REPOS)
+# .github/workflows/ci-python-zensical.yml (ALL-PY-SRC-REPOS AFTER dep groups in pyproject.toml)
 # ============================================================
 # Updated: 2026-08-08
 
@@ -63,8 +63,8 @@ jobs:
         # OBS: Does not modify the repo; uv manages the interpreter locally.
 
       - name: A4) Install all dependencies with frozen versions (in uv.lock)
-        run: uv sync --extra dev --extra docs --frozen
-        # WHY: Install dev and docs extras so all check and build tools are available.
+        run: uv sync --frozen
+        # REQ: Used with pyproject.toml [dependency-groups] to ensure all build and test tools are available.
 
       - name: A5) Show tool versions
         run: |

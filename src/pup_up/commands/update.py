@@ -3,12 +3,14 @@
 from collections.abc import Sequence
 from pathlib import Path
 
-from pup_up.inspect.detect import detect_repository
+from pup_core.inspect.detect import detect_repository
+
 from pup_up.sync.plan import (
     build_update_plan,
     filter_update_plan,
     write_update_plan,
 )
+from pup_up.templates.baseline import infer_layers
 from pup_up.templates.fetch import TemplateSource
 from pup_up.write.terminal import (
     print_update_diffs,
@@ -43,7 +45,13 @@ def run(
         Process exit code.
     """
     repository = detect_repository(root)
-
+    layers = tuple(
+        infer_layers(
+            repo_root=repository.root,
+            repo_name=repository.repo_name,
+            files=set(repository.files),
+        )
+    )
     source = TemplateSource(
         repository=templates,
         ref=ref,
@@ -52,6 +60,7 @@ def run(
 
     plan = build_update_plan(
         target=repository,
+        layers=layers,
         source=source,
         protected_paths=frozenset({"docs/api.md", "README.md"}),
     )
