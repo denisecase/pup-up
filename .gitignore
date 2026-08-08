@@ -8,6 +8,12 @@
 # out of the repository.
 # ALT: Repository may customize ignores, but MUST preserve universal safety rules.
 
+# === pup-up fragments ===
+
+# WHY: The pup-up (professional Python project updater) may provide temporary configuration fragments for manual merging.
+# WHY: Ruff settings belong in the repository's authoritative pyproject.toml.
+/pyproject.toml.ruff
+
 
 # === Logs and generated runtime output ===
 

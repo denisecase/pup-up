@@ -1,7 +1,7 @@
 # ============================================================
 # .github/workflows/links.yml (ALL-REPOS)
 # ============================================================
-# Updated: 2026-08-04
+# Updated: 2026-08-08
 
 # WHY: Automated link checking.
 # OBS: Behavior is configured in .github/lychee.toml in this repository.
@@ -11,8 +11,6 @@ name: Check Links
 
 on:
   pull_request: # WHY: Validates PR links before merge.
-  push:
-    branches: [main]  # WHY: Validate on every push to GitHub branch `main`.
   schedule:
     - cron: "0 6 1 * *" # WHY: Runs monthly on the 1st.
   workflow_call: # WHY: Allow this workflow to be called by other workflows if needed.

@@ -2,15 +2,15 @@
 
 <#
 ============================================================
-py_src_chores.ps1 (ALL-PY-SRC-REPOS)
+sit.ps1 (ALL-PY-SRC-REPOS)
 ============================================================
-Updated: 2026-06-27
+Updated: 2026-08-08
 
-Update dependencies, lint, test, and build docs.
+Situate dependencies, lint, test, and build docs.
 For Python source repos only.
 
 Run with:
-.\py_src_chores.ps1
+.\sit.ps1
 #>
 
 Set-StrictMode -Version Latest
@@ -19,7 +19,7 @@ $ErrorActionPreference = "Stop"
 uv self update
 uv python pin 3.15
 uv lock --upgrade
-uv sync --extra dev --extra docs --upgrade
+uv sync --extra dev --extra docs
 
 uv run pre-commit install
 uv run pre-commit autoupdate

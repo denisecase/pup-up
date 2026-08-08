@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30   # WHY: Fail fast if a step hangs unexpectedly.
     env:
-      UV_PYTHON: "3.14"   # WHY: Pin Python version for all steps in this job.
+      UV_PYTHON: "3.15"   # WHY: Pin Python version for all steps in this job.
 
     steps:
       # ============================================================
@@ -60,8 +60,8 @@ jobs:
           cache-dependency-glob: "uv.lock"
           # WHY: Invalidate cache only when locked dependencies change.
 
-      - name: A4) Install Python 3.14
-        run: uv python install 3.14
+      - name: A4) Install Python 3.15
+        run: uv python install 3.15
 
       - name: A5) Install all dependencies with frozen versions (in uv.lock)
         run: uv sync --extra dev --extra docs --frozen
