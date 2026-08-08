@@ -11,8 +11,8 @@ type: software
 
 title: "pup-up"
 # Set version and date-released to match latest git tag or release.
-version: "0.0.1"
-date-released: "2026-08-04"
+version: "0.0.2"
+date-released: "2026-08-08"
 
 authors:
   - family-names: Case
@@ -26,8 +26,8 @@ url: "https://github.com/denisecase/pup-up"
 license: MIT
 
 abstract: >
-  Command-line tool for bringing professional Python repositories 
-  up to a managed baseline using canonical templates 
+  Command-line tool for bringing professional Python repositories
+  up to a managed baseline using canonical templates
   while preserving repository-specific work.
 
 keywords:
@@ -41,4 +41,3 @@ keywords:
   - automation
   - software-architecture
   - accountable-repositories
-

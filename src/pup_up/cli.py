@@ -1,48 +1,24 @@
 """Command-line interface for pup-up.
 
-This module parses arguments and dispatches commands.
-Command behavior lives in pup_up.commands.
+This module parses arguments and dispatches update behavior.
 
 Commands:
 uv run pup-up
 uv run pup-up --write
-uv run pup-up todo
 
 Equivalent uvx usage after release:
 uvx pup-up
 uvx pup-up@latest
 uvx pup-up --write
-uvx pup-up todo
 """
 
 import argparse
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 
-from pup_up.commands import todo, update
+from pup_up.commands import update
 
 __all__ = ["build_parser", "main"]
-
-CommandFunc = Callable[[argparse.Namespace], int]
-
-EXIT_OK = 0
-EXIT_NO_COMMAND = 2
-
-
-def _run_update(args: argparse.Namespace) -> int:
-    """Bring the current repository up to the managed baseline."""
-    return update.run(
-        root=args.root,
-        write=args.write,
-        templates=args.templates,
-        ref=args.ref,
-        templates_path=args.templates_path,
-    )
-
-
-def _run_todo(args: argparse.Namespace) -> int:
-    """Show repo-specific human work that pup-up cannot safely calculate."""
-    return todo.run(root=args.root)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -73,6 +49,20 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--diff",
+        action="store_true",
+        help="Show unified diffs for managed files that would change.",
+    )
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        type=Path,
+        help=(
+            "Optional repository-relative managed file paths. "
+            "When provided with --write, only these files are written."
+        ),
+    )
+    parser.add_argument(
         "--templates",
         default="denisecase/templates",
         help=(
@@ -95,30 +85,6 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
 
-    subparsers = parser.add_subparsers(dest="command", required=False)
-
-    # === TODO COMMAND ===
-
-    todo_parser = subparsers.add_parser(
-        "todo",
-        help=(
-            "Show repo-specific human review work that cannot be safely "
-            "calculated or overwritten."
-        ),
-    )
-    todo_parser.add_argument(
-        "--root",
-        type=Path,
-        default=None,
-        help=(
-            "Repository root to inspect. Defaults to the nearest parent "
-            "directory containing .git, or the current directory."
-        ),
-    )
-    todo_parser.set_defaults(func=_run_todo)
-
-    parser.set_defaults(func=_run_update)
-
     return parser
 
 
@@ -129,17 +95,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         argv: Optional command-line arguments. If None, uses sys.argv.
 
     Returns:
-        Exit code from the executed command.
+        Exit code from the update command.
     """
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    func: CommandFunc | None = getattr(args, "func", None)
-    if func is None:
-        parser.print_help()
-        return EXIT_NO_COMMAND
-
-    return func(args)
+    return update.run(
+        root=args.root,
+        write=args.write,
+        show_diff=args.diff,
+        selected_paths=args.paths,
+        templates=args.templates,
+        ref=args.ref,
+        templates_path=args.templates_path,
+    )
 
 
 if __name__ == "__main__":

@@ -13,6 +13,30 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.0.2] - 2026-08-08
+
+### Added
+
+- Updated to Python 3.15
+- Refactored for maintainability
+- Added optional repository-relative managed file selection.
+- Added file-specific write support, such as `pup-up --write .gitattributes`.
+- Added `--diff` mode to show unified diffs for existing managed files that would change.
+- Added validation that selected paths are safe, repository-relative, and managed by `pup-up`.
+
+### Changed
+
+- Simplified the command-line interface to use a single update command without subparsers.
+- Limited update plans, reports, diffs, and writes to selected managed files when paths are provided.
+
+### Removed
+
+- Removed the general `pup-up todo` command.
+- Removed TODO report generation and the packaged `todo-surfaces.toml` configuration.
+- Removed the unused TODO report type and related tests.
+
+---
+
 ## [0.0.1] - 2026-08-04
 
 ### Added
@@ -20,7 +44,6 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 - Initial `pup-up` command-line package.
 - Added dry-run default command: `pup-up`.
 - Added write mode: `pup-up --write`.
-- Added human review TODO command: `pup-up todo`.
 - Added repository detection from the current working directory.
 - Added additive template layer inference.
 - Added managed-file planning for canonical baseline files.
@@ -55,16 +78,15 @@ Follow these steps when creating a new release.
 
 ````shell
 uv lock --upgrade
-uv sync --extra dev --extra docs --upgrade
-uvx pre-commit install
+uv sync --extra dev --extra docs
+uv run pre-commit install
 
 uv run pup-up
-uv run pup-up todo
 
 git add -A
-uvx pre-commit run --all-files
+uv run pre-commit run --all-files
 # rerun if changes made
-uvx pre-commit run --all-files
+uv run pre-commit run --all-files
 
 uv run python -m pytest
 uv run python -m pyright
@@ -100,7 +122,8 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/denisecase/pup-up/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/denisecase/pup-up/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/denisecase/pup-up/releases/tag/v0.0.2
 [0.0.1]: https://github.com/denisecase/pup-up/releases/tag/v0.0.1
 
 <!-- markdownlint-enable MD024 -->

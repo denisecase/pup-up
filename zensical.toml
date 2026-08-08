@@ -1,11 +1,9 @@
 # ============================================================
-# zensical.toml (ALL-PY-REPOS)
+# zensical.toml (ALL-PY-SRC-REPOS)
 # ============================================================
 # Updated: 2026-06-27
 #
-# REQ: Python tooling only (no src) repositories SHOULD provide documentation configuration.
-# BUT Do not need mkdocs plugs used for src/ api generation.
-# pyproject.toml needs only zensical.
+# REQ: Python src/ repositories SHOULD provide documentation configuration.
 # WHY: Centralizes project documentation configuration.
 
 [project]
@@ -30,6 +28,17 @@ social = [
 
 [project.plugins.search]
 lang = "en" # WHY: Search plugin provides instant search functionality for documentation.
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"] # WHY: MkDocstrings auto-generates documentation from code; this points it to the source code directory.
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google" # WHY: Google style docstrings are widely used and supported by many tools.
+show_source = true # WHY: Showing source code can help users understand implementation details.
+show_root_heading = true
+show_root_toc_entry = true
+show_signature_annotations = true
+separate_signature = true
 
 [project.theme]
 # SEE: https://zensical.org/docs/setup/navigation/#instant-navigation-zensicaltoml

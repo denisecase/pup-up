@@ -1,10 +1,19 @@
 """Apply or preview the managed repository baseline."""
 
+from collections.abc import Sequence
 from pathlib import Path
 
-from pup_up.detect import detect_repository
-from pup_up.fetch import TemplateSource
-from pup_up.plan import build_update_plan, print_update_plan, write_update_plan
+from pup_up.inspect.detect import detect_repository
+from pup_up.sync.plan import (
+    build_update_plan,
+    filter_update_plan,
+    write_update_plan,
+)
+from pup_up.templates.fetch import TemplateSource
+from pup_up.write.terminal import (
+    print_update_diffs,
+    print_update_plan,
+)
 
 __all__ = ["run"]
 
@@ -13,6 +22,8 @@ def run(
     *,
     root: Path | None = None,
     write: bool = False,
+    show_diff: bool = False,
+    selected_paths: Sequence[Path] = (),
     templates: str = "denisecase/templates",
     ref: str = "main",
     templates_path: Path | None = None,
@@ -22,6 +33,8 @@ def run(
     Args:
         root: Repository root. If None, pup-up detects the current repo root.
         write: Whether to write changes. False means dry-run only.
+        show_diff: Whether to print unified diffs for changed managed files.
+        selected_paths: Optional repository-relative managed files to process.
         templates: GitHub owner/repo for canonical templates.
         ref: Git ref, branch, or tag.
         templates_path: Optional local templates repo path.
@@ -42,8 +55,13 @@ def run(
         source=source,
         protected_paths=frozenset({"docs/api.md", "README.md"}),
     )
+    if selected_paths:
+        plan = filter_update_plan(plan, selected_paths)
 
     print_update_plan(plan, write=write)
+
+    if show_diff:
+        print_update_diffs(plan)
 
     if write:
         write_update_plan(plan)

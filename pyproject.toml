@@ -9,7 +9,7 @@
 [project]
 name = "pup-up"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.15"
 dynamic = ["version"] # WHY: Version is computed from git tags at build time.
 description = "Command-line tool for the opinionated guide to professional python projects; bringing repositories up to a managed baseline using layered canonical templates."
 license = { file = "LICENSE" }
@@ -23,7 +23,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Software Development",
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Quality Assurance",
@@ -85,7 +85,7 @@ Changelog = "https://github.com/denisecase/pup-up/blob/main/CHANGELOG.md"
 include = ["src", "tests"]
 extraPaths = ["src"]
 exclude = ["**/node_modules", "**/.*", ".venv", "**/__pycache__", "dist", "build"]
-pythonVersion = "3.14"
+pythonVersion = "3.15"
 reportMissingTypeStubs = "none"
 reportPrivateUsage = "none"
 typeCheckingMode = "basic"
@@ -120,7 +120,7 @@ line-length = 88
 preview = false
 
 # WHY: Match the current repo target; modernization rules should track the supported runtime.
-target-version = "py314"
+target-version = "py315"
 
 # WHY: Do not apply fixes Ruff marks unsafe in shared/release-oriented repos.
 unsafe-fixes = false
@@ -222,12 +222,11 @@ include = [
 packages = ["src/pup_up"]
 
 [tool.hatch.build.targets.wheel.force-include]
- "src/pup_up/data/defaults.toml" = "pup_up/data/defaults.toml"
- "src/pup_up/data/todo-surfaces.toml" = "pup_up/data/todo-surfaces.toml"
+ "src/pup_up/templates/data/defaults.toml" = "pup_up/templates/data/defaults.toml"
 
 [tool.hatch.version]
 # Used when no git tags are present. Keep in sync with CITATION.cff.
-fallback-version = "0.0.1"
+fallback-version = "0.0.2"
 # WHY: Version is derived from git tags at build time.
 source = "vcs"
 # WHY: Allow hatch-vcs to find the Git root from isolated build contexts.

@@ -1,67 +1,56 @@
-# Professional Python Project Companion
+# pup-up: Professional Python Project Updater
 
-> An opinionated guide to professional Python project infrastructure.
+[![PyPI](https://img.shields.io/pypi/v/pup-up?logo=pypi&label=pypi)](https://pypi.org/project/pup-up/)
+[![Docs Site](https://img.shields.io/badge/docs-site-blue?logo=github)](https://denisecase.github.io/pup-up/)
+[![Repo](https://img.shields.io/badge/repo-GitHub-black?logo=github)](https://github.com/denisecase/pup-up)
+[![Python 3.15](https://img.shields.io/badge/python-3.15%2B-blue?logo=python)](./pyproject.toml)
+[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)
 
-A professional Python project includes the
-configuration, conventions, automation, documentation, and validation that
-allow the project to be developed and maintained reliably.
+[![CI](https://github.com/denisecase/pup-up/actions/workflows/ci-python-zensical.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/ci-python-zensical.yml)
+[![Docs-Deploy](https://github.com/denisecase/pup-up/actions/workflows/deploy-zensical.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/deploy-zensical.yml)
+[![Pre-Release](https://github.com/denisecase/pup-up/actions/workflows/pre-release.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/pre-release.yml)
+[![Release](https://github.com/denisecase/pup-up/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/denisecase/pup-up/actions/workflows/release-pypi.yml)
+[![Links](https://github.com/denisecase/pup-up/actions/workflows/links.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/links.yml)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen.svg)](https://github.com/denisecase/pup-up/security)
 
-This repository contains:
+> Opinionated professional Python project template synchronizer
 
-- the source for the companion;
-- maintained canonical project files;
-- the rationale behind the selected infrastructure;
-- automated builds for web, EPUB, and PDF editions.
-- the PyPi `pup` package for updating infrastructure files
+## Purpose
 
-## Guiding Principle
+Professional Python repositories commonly share infrastructure such as:
 
-Professional Python projects deserve intentional infrastructure.
+- editor and Git configuration
+- ignore and line-ending rules
+- Markdown, YAML, and link checking
+- formatting, linting, type checking, and testing
+- documentation tooling
+- continuous integration
+- package and release validation
 
-The specific tools will evolve. The engineering concerns they address will
-remain.
+`pup-up` makes it easy to keep the infrastructure files commonly used in
+professional projects current and consistent.
 
-## Canonical Examples
+## Template Source
 
-The `canonical/` directory contains annotated examples of the project files
-discussed in the companion.
-
-These examples represent one opinionated professional standard.
-Readers can fork the repository and adapt examples to
-their own requirements.
-
-## Install Tools
-
-1. [Quarto CLI](https://quarto.org/)
-2. [VS Code Editor](https://code.visualstudio.com/)
-3. [VS Code Editor Quarto Extension](https://marketplace.visualstudio.com/items?itemName=quarto.quarto)
-4. [Git](https://git-scm.com/)
-5. [uv Python manager](https://docs.astral.sh/uv/)
-
-## Build the Book
-
-```shell
-uv sync
-quarto render
-```
-
-## Outputs
-
-The book can be rendered as:
-
-- an HTML website;
-- an EPUB;
-- a print-ready PDF.
+- [templates](https://github.com/denisecase/templates)
 
 ## Update a Repo based on Templates
 
 ```shell
-# see what files the command would update (optional, force latest)
+# see what files would change (dry run, the default)
 uvx pup-up
+
+# see what files the command would update (dry run, force latest version)
 uvx pup-up@latest
 
-# actually add and overwrite the files listed (CAUTION: DESTRUCTIVE)
+# see exactly what would change, line by line
+uvx pup-up --diff
+
+# add and overwrite all the files listed (CAUTION: DESTRUCTIVE)
 uvx pup-up --write
+
+# add and overwrite only specific files listed (CAUTION: DESTRUCTIVE)
+uvx pup-up --write .gitattributes .github/.yamllint.yml .github/workflows/links.yml
 ```
 
 ## Developer Command Reference
@@ -84,21 +73,23 @@ code .
 
 ```shell
 uv self update
-uv python pin 3.14
+uv python pin 3.15
 uv lock --upgrade
 uv sync --extra dev --extra docs
 
-uvx pre-commit install
-uvx pre-commit autoupdate
+uv run pre-commit install
+uv run pre-commit autoupdate
 
 git add -A
-uvx pre-commit run --all-files
+uv run pre-commit run --all-files
 # repeat if changes were made
-uvx pre-commit run --all-files
+uv run pre-commit run --all-files
 
-# repo-specific
+# run locally to test
 uv run pup-up
+uv run pup-up --diff
 uv run pup-up --write
+uv run pup-up --write .gitattributes .github/.yamllint.yml .github/workflows/links.yml
 
 # types, tests, docs
 uv run python -m pyright
@@ -113,7 +104,14 @@ git push -u origin main
 
 </details>
 
+## Annotations
+
+[.annotations/annotations.md](./.annotations/annotations.md)
+
+## Citation
+
+[CITATION.cff](./CITATION.cff)
+
 ## License
 
-The book text and canonical examples may use different licenses. See
-[LICENSE](LICENSE) and the licensing notes in the repository documentation.
+[MIT](./LICENSE)

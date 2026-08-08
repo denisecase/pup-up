@@ -1,7 +1,7 @@
 # ============================================================
 # .gitignore (ALL-REPOS)
 # ============================================================
-# Updated: 2026-06-27
+# Updated: 2026-08-04
 #
 # REQ: All professional GitHub project repositories MUST include .gitignore.
 # WHY: Keep generated artifacts, local state, secrets, and OS-specific files
@@ -11,10 +11,10 @@
 
 # === Logs and generated runtime output ===
 
-# WHY: Logs are useful during debugging and verification.
-# ALT: Comment when logs must be inspected or validated.
+# WHY: Ignore logs and runtime output by default; share only project.log for evidence.
 *.log
 logs/
+!/project.log
 
 
 # === Private notes and local-only files ===
@@ -189,6 +189,3 @@ __pycache__/
 
 # WHY: Notebook checkpoint state is generated.
 .ipynb_checkpoints/
-
-/.quarto/
-**/*.quarto_ipynb

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pup_up.baseline import infer_layers
+from pup_up.templates.baseline import infer_layers
 
 
 def test_inference_py_simple(tmp_path: Path):

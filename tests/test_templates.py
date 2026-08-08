@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from pup_up.detect import _detect_src_package
-from pup_up.render import render_template
-from pup_up.types import RepositoryContext
+from pup_up.base.types import RepositoryContext
+from pup_up.inspect.detect import _detect_src_package
+from pup_up.templates.render import render_template
 
 
 def test_detect_src_package_finds_package(tmp_path: Path) -> None:

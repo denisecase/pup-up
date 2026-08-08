@@ -48,4 +48,4 @@ exclude = [
 ]
 
 # WHY: Exclude paths not relevant for link checking
-exclude_path = ["ALL", "ALL-PY", "ALL-PY-SRC"]
+exclude_path = ["ALL", "ALL-PY", "ALL-PY-SRC", "ALL-COURSE", "ALL-COURSE-PY-SRC"]
