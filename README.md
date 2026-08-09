@@ -13,6 +13,11 @@
 [![Links](https://github.com/denisecase/pup-up/actions/workflows/links.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/links.yml)
 [![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen.svg)](https://github.com/denisecase/pup-up/security)
 
+<img
+src="https://raw.githubusercontent.com/denisecase/pup-up/main/docs/images/pup.png"
+alt="pup logo"
+width="110">
+
 > Opinionated professional Python project template synchronizer
 
 ## Purpose
@@ -105,6 +110,10 @@ git push -u origin main
 ```
 
 </details>
+
+## Documentation
+
+- [Documentation](https://denisecase.github.io/pup-up/)
 
 ## Annotations
 

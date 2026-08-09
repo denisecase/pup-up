@@ -1,5 +1,7 @@
 # pup-up
 
+<img src="images/pup.png" alt="pup-clean logo" width="110">
+
 `pup-up` brings a Python repository up to a managed professional baseline.
 
 It is designed for repositories that follow repeatable professional patterns
