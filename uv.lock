@@ -549,11 +549,11 @@ wheels = [
 
 [[package]]
 name = "pup-core"
-version = "0.0.4"
+version = "0.0.5"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d3/6f/9af9b8128b51c857db7537bc4bc637bc1d094fbfacccb231e68406a55912/pup_core-0.0.4.tar.gz", hash = "sha256:d2318d6f718b9b688c157c6140796c7ea8b063abeeaaaee1bce22c15e95a4c4b", size = 14917, upload-time = "2026-08-08T21:47:36.135Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/78/524abea6495f228c5ee279af5a4b81eecbcbfd550822d7822d772fbc1891/pup_core-0.0.5.tar.gz", hash = "sha256:c14232dbcd028800c61950e6842b0c9056ab495e34e06e56c1f0d5512c7493bf", size = 15077, upload-time = "2026-08-09T15:56:23.607Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/49/47d04e371d6585c8ae8b8c3a836032f592edaf44c4a9e4c6064cacc2537f/pup_core-0.0.4-py3-none-any.whl", hash = "sha256:3d37e594f6c2c9de1ddcba4d5442b9f0a1c8de4df4bf60ed1e830413736c182c", size = 14640, upload-time = "2026-08-08T21:47:34.915Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/f7/2e8d96c77aa097c43311c80eb34af6a0b440a4c3e37e4712c5fbb363b270/pup_core-0.0.5-py3-none-any.whl", hash = "sha256:afe74219b763c7a65bfc642619b97f9521950acc1ad455d0751d272730a9895f", size = 14708, upload-time = "2026-08-09T15:56:22.608Z" },
 ]
 
 [[package]]
@@ -579,7 +579,7 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pup-core", specifier = ">=0.0.4" }]
+requires-dist = [{ name = "pup-core", specifier = ">=0.0.5" }]
 
 [package.metadata.requires-dev]
 dev = [

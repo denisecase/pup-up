@@ -11,8 +11,8 @@ type: software
 
 title: "pup-up"
 # Set version and date-released to match latest git tag or release.
-version: "0.0.4"
-date-released: "2026-08-08"
+version: "0.0.5"
+date-released: "2026-08-09"
 
 authors:
   - family-names: Case
