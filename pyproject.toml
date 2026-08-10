@@ -43,7 +43,7 @@ keywords = [
 ]
 
 dependencies = [
-    "pup-core>=0.0.5",
+    "pup-core>=0.1.0",
 ]
 
 [dependency-groups]
@@ -235,7 +235,7 @@ packages = ["src/pup_up"]
 
 [tool.hatch.version]
 # Used when no git tags are present. Keep in sync with CITATION.cff.
-fallback-version = "0.0.5"
+fallback-version = "0.1.0"
 # WHY: Version is derived from git tags at build time.
 source = "vcs"
 # WHY: Accept semantic-version tags with or without a leading v.
