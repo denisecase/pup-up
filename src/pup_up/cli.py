@@ -64,10 +64,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--templates",
-        default="denisecase/templates",
+        default="pup-pack/templates",
         help=(
-            "GitHub owner/repo for canonical templates. "
-            "Defaults to denisecase/templates."
+            "GitHub owner/repo for canonical templates. Defaults to pup-pack/templates."
         ),
     )
     parser.add_argument(

@@ -13,9 +13,17 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.1.1] - 2026-08-10
+
+- updated the organization
+
+---
+
 ## [0.1.0] - 2026-08-10
 
 - transferred to pup-pack
+
+---
 
 ## [0.0.5] - 2026-08-09
 
@@ -70,7 +78,7 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 - Added repository detection from the current working directory.
 - Added additive template layer inference.
 - Added managed-file planning for canonical baseline files.
-- Added GitHub raw template fetching from `denisecase/templates`.
+- Added GitHub raw template fetching from `pup-pack/templates`.
 - Added optional local template source support.
 - Added minimal repository identity token rendering.
 - Added conservative write behavior for managed baseline files only.
@@ -145,11 +153,12 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/denisecase/pup-up/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/denisecase/pup-up/releases/tag/v0.1.0
-[0.0.5]: https://github.com/denisecase/pup-up/releases/tag/v0.0.5
-[0.0.4]: https://github.com/denisecase/pup-up/releases/tag/v0.0.4
-[0.0.2]: https://github.com/denisecase/pup-up/releases/tag/v0.0.2
-[0.0.1]: https://github.com/denisecase/pup-up/releases/tag/v0.0.1
+[Unreleased]: https://github.com/pup-pack/pup-up/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/pup-pack/pup-up/releases/tag/v0.1.1
+[0.1.0]: https://github.com/pup-pack/pup-up/releases/tag/v0.1.0
+[0.0.5]: https://github.com/pup-pack/pup-up/releases/tag/v0.0.5
+[0.0.4]: https://github.com/pup-pack/pup-up/releases/tag/v0.0.4
+[0.0.2]: https://github.com/pup-pack/pup-up/releases/tag/v0.0.2
+[0.0.1]: https://github.com/pup-pack/pup-up/releases/tag/v0.0.1
 
 <!-- markdownlint-enable MD024 -->

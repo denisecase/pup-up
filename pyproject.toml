@@ -43,7 +43,7 @@ keywords = [
 ]
 
 dependencies = [
-    "pup-core>=0.1.0",
+    "pup-core>=0.1.1",
 ]
 
 [dependency-groups]
@@ -72,11 +72,11 @@ docs = [
 pup-up = "pup_up.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/denisecase/pup-up"
-Repository = "https://github.com/denisecase/pup-up"
-Documentation = "https://denisecase.github.io/pup-up/"
-Issues = "https://github.com/denisecase/pup-up/issues"
-Changelog = "https://github.com/denisecase/pup-up/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/pup-pack/pup-up"
+Repository = "https://github.com/pup-pack/pup-up"
+Documentation = "https://pup-pack.github.io/pup-up/"
+Issues = "https://github.com/pup-pack/pup-up/issues"
+Changelog = "https://github.com/pup-pack/pup-up/blob/main/CHANGELOG.md"
 
 # ============================================================
 # SECTION 2: TOOL CONFIGURATION
@@ -235,7 +235,7 @@ packages = ["src/pup_up"]
 
 [tool.hatch.version]
 # Used when no git tags are present. Keep in sync with CITATION.cff.
-fallback-version = "0.1.0"
+fallback-version = "0.1.1"
 # WHY: Version is derived from git tags at build time.
 source = "vcs"
 # WHY: Accept semantic-version tags with or without a leading v.

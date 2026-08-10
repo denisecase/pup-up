@@ -11,7 +11,7 @@ type: software
 
 title: "pup-up"
 # Set version and date-released to match latest git tag or release.
-version: "0.1.0"
+version: "0.1.1"
 date-released: "2026-08-10"
 
 authors:
@@ -20,8 +20,8 @@ authors:
     orcid: "https://orcid.org/0000-0001-6165-7389"
     affiliation: "Northwest Missouri State University, School of Computer Science and Information Systems, Maryville, MO, USA"
 
-repository-code: "https://github.com/denisecase/pup-up"
-url: "https://github.com/denisecase/pup-up"
+repository-code: "https://github.com/pup-pack/pup-up"
+url: "https://github.com/pup-pack/pup-up"
 
 license: MIT
 

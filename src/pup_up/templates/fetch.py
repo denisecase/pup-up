@@ -31,7 +31,7 @@ class TemplateFile:
 class TemplateSource:
     """Canonical template source."""
 
-    repository: str = "denisecase/templates"
+    repository: str = "pup-pack/templates"
     ref: str = "main"
     local_path: Path | None = None
 

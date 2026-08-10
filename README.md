@@ -1,20 +1,20 @@
 # pup-up: Professional Python Project Updater
 
 [![PyPI](https://img.shields.io/pypi/v/pup-up?logo=pypi&label=pypi)](https://pypi.org/project/pup-up/)
-[![Docs Site](https://img.shields.io/badge/docs-site-blue?logo=github)](https://denisecase.github.io/pup-up/)
-[![Repo](https://img.shields.io/badge/repo-GitHub-black?logo=github)](https://github.com/denisecase/pup-up)
+[![Docs Site](https://img.shields.io/badge/docs-site-blue?logo=github)](https://pup-pack.github.io/pup-up/)
+[![Repo](https://img.shields.io/badge/repo-GitHub-black?logo=github)](https://github.com/pup-pack/pup-up)
 [![Python 3.15](https://img.shields.io/badge/python-3.15%2B-blue?logo=python)](./pyproject.toml)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](./LICENSE)
 
-[![CI](https://github.com/denisecase/pup-up/actions/workflows/ci-python-zensical.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/ci-python-zensical.yml)
-[![Docs-Deploy](https://github.com/denisecase/pup-up/actions/workflows/deploy-zensical.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/deploy-zensical.yml)
-[![Pre-Release](https://github.com/denisecase/pup-up/actions/workflows/pre-release.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/pre-release.yml)
-[![Release](https://github.com/denisecase/pup-up/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/denisecase/pup-up/actions/workflows/release-pypi.yml)
-[![Links](https://github.com/denisecase/pup-up/actions/workflows/links.yml/badge.svg?branch=main)](https://github.com/denisecase/pup-up/actions/workflows/links.yml)
-[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen.svg)](https://github.com/denisecase/pup-up/security)
+[![CI](https://github.com/pup-pack/pup-up/actions/workflows/ci-python-zensical.yml/badge.svg?branch=main)](https://github.com/pup-pack/pup-up/actions/workflows/ci-python-zensical.yml)
+[![Docs-Deploy](https://github.com/pup-pack/pup-up/actions/workflows/deploy-zensical.yml/badge.svg?branch=main)](https://github.com/pup-pack/pup-up/actions/workflows/deploy-zensical.yml)
+[![Pre-Release](https://github.com/pup-pack/pup-up/actions/workflows/pre-release.yml/badge.svg?branch=main)](https://github.com/pup-pack/pup-up/actions/workflows/pre-release.yml)
+[![Release](https://github.com/pup-pack/pup-up/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/pup-pack/pup-up/actions/workflows/release-pypi.yml)
+[![Links](https://github.com/pup-pack/pup-up/actions/workflows/links.yml/badge.svg?branch=main)](https://github.com/pup-pack/pup-up/actions/workflows/links.yml)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-brightgreen.svg)](https://github.com/pup-pack/pup-up/security)
 
 <img
-src="https://raw.githubusercontent.com/denisecase/pup-up/main/docs/images/pup.png"
+src="https://raw.githubusercontent.com/pup-pack/pup-up/main/docs/images/pup.png"
 alt="pup logo"
 width="110">
 
@@ -37,7 +37,7 @@ professional projects current and consistent.
 
 ## Template Source
 
-- [templates](https://github.com/denisecase/templates)
+- [templates](https://github.com/pup-pack/templates)
 
 ## Update a Repo based on Templates
 
@@ -68,7 +68,7 @@ uvx pup-up --write .gitattributes .github/.yamllint.yml .github/workflows/links.
 Open a machine terminal where you want the project:
 
 ```shell
-git clone https://github.com/denisecase/pup-up
+git clone https://github.com/pup-pack/pup-up
 
 cd pup-up
 code .
@@ -113,7 +113,7 @@ git push -u origin main
 
 ## Documentation
 
-- [Documentation](https://denisecase.github.io/pup-up/)
+- [Documentation](https://pup-pack.github.io/pup-up/)
 
 ## Annotations
 

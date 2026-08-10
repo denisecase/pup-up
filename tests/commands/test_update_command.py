@@ -47,7 +47,7 @@ version = "0.1.0"
     exit_code = update.run(
         root=repo,
         write=False,
-        templates="denisecase/templates",
+        templates="pup-pack/templates",
         ref="main",
         templates_path=templates,
     )

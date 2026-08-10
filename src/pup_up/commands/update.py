@@ -26,7 +26,7 @@ def run(
     write: bool = False,
     show_diff: bool = False,
     selected_paths: Sequence[Path] = (),
-    templates: str = "denisecase/templates",
+    templates: str = "pup-pack/templates",
     ref: str = "main",
     templates_path: Path | None = None,
 ) -> int:

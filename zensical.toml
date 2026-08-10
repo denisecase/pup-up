@@ -8,8 +8,8 @@
 
 [project]
 site_name = "Docs" # CUSTOM: Set the name that appears in the browser tab.
-site_url = "https://denisecase.github.io/pup-up/"
-repo_url = "https://github.com/denisecase/pup-up"
+site_url = "https://pup-pack.github.io/pup-up/"
+repo_url = "https://github.com/pup-pack/pup-up"
 repo_name = "pup-up"
 site_description = "Project Documentation" # CUSTOM: Set the description.
 docs_dir = "docs" # source directory for documentation markdown files
@@ -19,7 +19,7 @@ edit_uri = "edit/main/docs/" # "Edit this page" links (GitHub)
 [project.extra]
 # WHY: Social links provide easy access to project repositories and profiles.
 social = [
-    {icon = "fontawesome/brands/github", link = "https://github.com/denisecase/pup-up" },
+    {icon = "fontawesome/brands/github", link = "https://github.com/pup-pack/pup-up" },
 ]
 
 # ------------------------------------------------------------
