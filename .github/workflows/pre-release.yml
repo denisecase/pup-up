@@ -1,7 +1,7 @@
 # ============================================================
-# .github/workflows/pre-release.yml (ALL-PY-SRC-PYPI-REPOS AFTER dep groups in pyproject.toml)
+# .github/workflows/pre-release.yml (ALL-PY-SRC-PYPI-REPOS)
 # ============================================================
-# Updated: 2026-08-08
+# Updated: 2026-08-12
 #
 # WHY: Validate tagged Python package artifacts before release.
 # REQ: Reusable by PyPI package repositories.
@@ -24,12 +24,11 @@ jobs:
   pre-release:
     runs-on: ubuntu-latest
     timeout-minutes: 30 # WHY: Prevent hanging jobs. If over, it is likely stuck.
-    env:
-      UV_PYTHON: "3.15"
 
     steps:
-
-      # === ASSEMBLE ===
+      # ============================================================
+      # A) ASSEMBLE: Checkout code and set up environment
+      # ============================================================
 
       - name: A1) Checkout repository with full history and tags
         uses: actions/checkout@v7
@@ -38,14 +37,16 @@ jobs:
           fetch-tags: true
           ref: ${{ github.ref }}
 
-      - name: A2) Install uv
-        uses: astral-sh/setup-uv@v7
+      - name: A2) Install uv (with caching)
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
+          # WHY: Cache the uv tool itself for faster subsequent runs.
           cache-dependency-glob: "uv.lock"
+          # WHY: Invalidate cache only when locked dependencies change.
 
-      - name: A3) Install Python ${{ env.UV_PYTHON }} in uv
-        run: uv python install ${{ env.UV_PYTHON }}
+      - name: A3) Install project Python
+        run: uv python install
         # WHY: Ensures the pinned Python version is available in CI.
         # OBS: Does not modify the repo; uv manages the interpreter locally.
 
@@ -69,6 +70,8 @@ jobs:
           git describe --tags --always --dirty
           if [[ $(git status --porcelain) ]]; then
             echo "ERROR: Git tree is dirty before build!"
+            echo "Most likely: uv.lock is out of sync with pyproject.toml."
+            echo "Fix: run 'uv lock' locally, commit the updated lock, delete the tag, and re-tag."
             exit 1
           fi
 
@@ -92,7 +95,6 @@ jobs:
 
       - name: B5) Sync all dependencies with frozen versions (in uv.lock)
         run: uv sync --frozen
-        # REQ: Used with pyproject.toml [dependency-groups] to ensure all build and test tools are available.
 
       - name: B6) Validate built artifacts
         run: uvx twine check dist/*

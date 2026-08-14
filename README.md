@@ -99,7 +99,7 @@ uv run pup-up --write
 uv run pup-up --write .gitattributes .github/.yamllint.yml .github/workflows/links.yml
 
 # types, tests, docs
-uv run python -m pyright
+uv run ty check
 uv run python -m pytest
 uv run python -m zensical build
 

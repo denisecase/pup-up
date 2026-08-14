@@ -12,13 +12,12 @@ readme = "README.md"
 requires-python = ">=3.15"
 dynamic = ["version"] # WHY: Version is computed from git tags at build time.
 description = "Command-line tool for the opinionated guide to professional python projects; bringing repositories up to a managed baseline using layered canonical templates."
-license = "MIT"
 license-files = ["LICENSE"]
 authors = [
     { name = "Denise Case" },
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
@@ -43,7 +42,7 @@ keywords = [
 ]
 
 dependencies = [
-    "pup-core>=0.1.1",
+    "pup-core>=0.1.3",
 ]
 
 [dependency-groups]
@@ -54,11 +53,11 @@ dev = [
     # REQ.DEV.DEPS: External packages used for linting, testing, type checking, etc.
     "build",      # WHY: Build frontend for packaging validation when needed.
     "pre-commit", # WHY: Pre-commit hooks for consistent formatting and linting.
-    "pyright",    # WHY: Type checking for static analysis and early bug detection.
     "pytest",     # WHY: Test framework for unit and integration tests.
     "pytest-cov", # WHY: Test coverage reporting for quality metrics and CI gating.
     "ruff",       # WHY: Fast linting and formatting for Python code.
     "twine",      # WHY: Required for artifact validation: twine check dist/*.
+    "ty",         # WHY: Type checking for static analysis and type safety.
 ]
 
 docs = [
@@ -82,25 +81,13 @@ Changelog = "https://github.com/pup-pack/pup-up/blob/main/CHANGELOG.md"
 # SECTION 2: TOOL CONFIGURATION
 # ============================================================
 
-# === PYRIGHT ===
-
-[tool.pyright]
-# WHY: Strict type checking helps catch bugs early.
-include = ["src", "tests"]
-extraPaths = ["src"]
-exclude = ["**/node_modules", "**/.*", ".venv", "**/__pycache__", "dist", "build"]
-pythonVersion = "3.15"
-reportMissingTypeStubs = "none"
-reportPrivateUsage = "none"
-typeCheckingMode = "basic"
-
 # === PYTEST ===
 
 [tool.pytest.ini_options]
 # WHY: Consistent test discovery and coverage visibility.
 minversion = "9.0"
 testpaths = ["tests"]
-addopts = "--cov=pup_up --cov-report=term-missing --cov-fail-under=60"
+addopts = "--cov=pup_up --cov-fail-under=70 --cov-report=term-missing"
 
 # === RUFF ===
 
@@ -235,7 +222,7 @@ packages = ["src/pup_up"]
 
 [tool.hatch.version]
 # Used when no git tags are present. Keep in sync with CITATION.cff.
-fallback-version = "0.1.1"
+fallback-version = "0.1.3"
 # WHY: Version is derived from git tags at build time.
 source = "vcs"
 # WHY: Accept semantic-version tags with or without a leading v.
