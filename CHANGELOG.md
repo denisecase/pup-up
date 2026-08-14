@@ -11,6 +11,10 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+- improved fetch as a set
+- zensical will keep existing nav
+- starting on pyproject parts
+
 ---
 
 ## [0.1.1] - 2026-08-10
