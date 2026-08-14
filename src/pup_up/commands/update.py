@@ -11,7 +11,7 @@ from pup_up.sync.plan import (
     write_update_plan,
 )
 from pup_up.templates.baseline import infer_layers
-from pup_up.templates.fetch import TemplateSource
+from pup_up.templates.fetch import TemplateSource, fetch_template_snapshot
 from pup_up.write.terminal import (
     print_update_diffs,
     print_update_plan,
@@ -58,12 +58,14 @@ def run(
         local_path=templates_path,
     )
 
-    plan = build_update_plan(
-        target=repository,
-        layers=layers,
-        source=source,
-        protected_paths=frozenset({"docs/api.md", "README.md"}),
-    )
+    with fetch_template_snapshot(source=source) as snapshot:
+        plan = build_update_plan(
+            target=repository,
+            layers=layers,
+            snapshot=snapshot,
+            protected_paths=frozenset({"docs/api.md", "README.md"}),
+        )
+
     if selected_paths:
         plan = filter_update_plan(plan, selected_paths)
 

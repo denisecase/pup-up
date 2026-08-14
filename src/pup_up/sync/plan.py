@@ -9,11 +9,12 @@ from pup_up.base.errors import UnsafePathError
 from pup_up.base.types import FileStatus, PlannedFile, UpdatePlan
 from pup_up.templates.fetch import (
     TemplateFile,
-    TemplateSource,
+    TemplateSnapshot,
     fetch_template_text,
     list_template_files,
 )
 from pup_up.templates.render import render_template
+from pup_up.templates.zensical import preserve_zensical_navigation
 
 __all__ = [
     "build_update_plan",
@@ -26,14 +27,14 @@ def build_update_plan(
     *,
     target: RepositoryContext,
     layers: tuple[str, ...],
-    source: TemplateSource,
+    snapshot: TemplateSnapshot,
     protected_paths: frozenset[str] = frozenset(),
 ) -> UpdatePlan:
     """Build an update plan from discovered template files."""
     planned_files: list[PlannedFile] = []
 
     template_files = list_template_files(
-        source=source,
+        snapshot=snapshot,
         layers=list(layers),
     )
 
@@ -41,7 +42,7 @@ def build_update_plan(
         planned_files.append(
             _plan_one_template_file(
                 target=target,
-                source=source,
+                snapshot=snapshot,
                 template_file=template_file,
             )
         )
@@ -115,14 +116,13 @@ def write_update_plan(plan: UpdatePlan) -> None:
 def _plan_one_template_file(
     *,
     target: RepositoryContext,
-    source: TemplateSource,
+    snapshot: TemplateSnapshot,
     template_file: TemplateFile,
 ) -> PlannedFile:
     """Plan one discovered template file."""
     template_text = fetch_template_text(
-        source=source,
-        layer=template_file.layer,
-        path=template_file.target_path,
+        snapshot=snapshot,
+        template_file=template_file,
     )
 
     if template_text is None:
@@ -140,6 +140,12 @@ def _plan_one_template_file(
     desired_text = render_template(template_text, target)
     relative_path = Path(template_file.target_path)
     current_text = _read_current_text(target.root, relative_path)
+
+    if relative_path == Path("zensical.toml") and current_text is not None:
+        desired_text = preserve_zensical_navigation(
+            existing_text=current_text,
+            rendered_text=desired_text,
+        )
 
     status = _file_status(
         current_text=current_text,

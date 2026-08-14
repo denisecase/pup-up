@@ -1,9 +1,12 @@
 """Template source access."""
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
-import json
+import io
 from pathlib import Path
-from typing import cast
+import tarfile
+from tempfile import TemporaryDirectory
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
@@ -12,7 +15,9 @@ from pup_up.base.errors import TemplateFetchError
 
 __all__ = [
     "TemplateFile",
+    "TemplateSnapshot",
     "TemplateSource",
+    "fetch_template_snapshot",
     "fetch_template_text",
     "list_template_files",
 ]
@@ -28,6 +33,21 @@ class TemplateFile:
 
 
 @dataclass(frozen=True)
+class TemplateSnapshot:
+    """Resolved template tree read from one local root.
+
+    A snapshot is the single source everything reads from during a run. It is
+    produced once by ``fetch_template_snapshot`` and points at either an
+    extracted archive or an explicit local templates path.
+    """
+
+    root: Path
+    repository: str
+    ref: str
+    from_local: bool
+
+
+@dataclass(frozen=True)
 class TemplateSource:
     """Canonical template source."""
 
@@ -36,62 +56,89 @@ class TemplateSource:
     local_path: Path | None = None
 
 
-def fetch_template_text(
-    *,
-    source: TemplateSource,
-    layer: str,
-    path: str,
-) -> str | None:
-    """Fetch one template file.
+@contextmanager
+def fetch_template_snapshot(*, source: TemplateSource) -> Iterator[TemplateSnapshot]:
+    """Resolve a template source to a single local snapshot for the run.
+
+    If ``source.local_path`` is set, the snapshot wraps that path directly and
+    nothing is downloaded. Otherwise the template repository archive is fetched
+    once for ``source.ref`` and extracted to a temporary directory that is
+    removed when the context exits.
 
     Args:
         source: Template source.
-        layer: Template layer, such as ALL-PY.
-        path: Repository-relative managed file path.
+
+    Yields:
+        A snapshot rooted at a local template tree.
+
+    Raises:
+        TemplateFetchError: If the archive cannot be downloaded or extracted.
+    """
+    if source.local_path is not None:
+        yield TemplateSnapshot(
+            root=source.local_path.expanduser().resolve(),
+            repository=source.repository,
+            ref=source.ref,
+            from_local=True,
+        )
+        return
+
+    with TemporaryDirectory(prefix="pup-up-templates-") as raw_dest:
+        root = _download_and_extract_snapshot(
+            repository=source.repository,
+            ref=source.ref,
+            dest=Path(raw_dest),
+        )
+        yield TemplateSnapshot(
+            root=root,
+            repository=source.repository,
+            ref=source.ref,
+            from_local=False,
+        )
+
+
+def fetch_template_text(
+    *,
+    snapshot: TemplateSnapshot,
+    template_file: TemplateFile,
+) -> str | None:
+    """Read one template file from the snapshot.
+
+    The file's real ``template_path`` was already resolved by
+    ``list_template_files``, so this is a direct local read with no suffix
+    guessing.
+
+    Args:
+        snapshot: Resolved template snapshot.
+        template_file: Discovered template file to read.
 
     Returns:
         File text, or None if the template file does not exist.
 
     Raises:
-        TemplateFetchError: If fetching fails for a reason other than not found.
+        TemplateFetchError: If the file exists but cannot be read.
     """
-    if source.local_path is not None:
-        return _fetch_local_template_text(
-            local_path=source.local_path,
-            layer=layer,
-            path=path,
-        )
+    path = snapshot.root / template_file.layer / template_file.template_path
 
-    return _fetch_github_template_text(
-        repository=source.repository,
-        ref=source.ref,
-        layer=layer,
-        path=path,
-    )
+    if not path.exists() or path.is_dir():
+        return None
+
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise TemplateFetchError(f"Could not read template file: {path}") from exc
 
 
 def list_template_files(
     *,
-    source: TemplateSource,
+    snapshot: TemplateSnapshot,
     layers: list[str],
 ) -> list[TemplateFile]:
     """List managed template files for selected layers.
 
     Later layers override earlier layers by target path.
     """
-    discovered: list[TemplateFile]
-
-    if source.local_path is not None:
-        discovered = _list_local_template_files(
-            local_path=source.local_path,
-            layers=layers,
-        )
-    else:
-        discovered = _list_github_template_files(
-            repository=source.repository,
-            ref=source.ref,
-            layers=layers,
-        )
+    discovered = _list_template_files(root=snapshot.root, layers=layers)
 
     by_target: dict[str, TemplateFile] = {}
     for item in discovered:
@@ -100,75 +147,17 @@ def list_template_files(
     return list(by_target.values())
 
 
-def _list_github_template_files(
+def _list_template_files(
     *,
-    repository: str,
-    ref: str,
+    root: Path,
     layers: list[str],
 ) -> list[TemplateFile]:
-    """List template files from GitHub's recursive tree API."""
-    encoded_ref = quote(ref, safe="")
-    url = (
-        f"https://api.github.com/repos/{repository}/git/trees/{encoded_ref}?recursive=1"
-    )
-
-    payload = _fetch_json_object(url)
-    tree = payload.get("tree")
-
-    if not isinstance(tree, list):
-        raise TemplateFetchError(f"Unexpected GitHub tree response: {url}")
-
-    selected_layers = set(layers)
-    layer_order = {layer: index for index, layer in enumerate(layers)}
-    items: list[TemplateFile] = []
-
-    tree_entries = cast(list[object], tree)
-    for entry in tree_entries:
-        if not isinstance(entry, dict):
-            continue
-
-        entry_data = cast(dict[object, object], entry)
-
-        if entry_data.get("type") != "blob":
-            continue
-
-        raw_path = entry_data.get("path")
-        if not isinstance(raw_path, str):
-            continue
-
-        layer, relative_path = _split_layer_path(raw_path)
-
-        if layer not in selected_layers:
-            continue
-
-        if _should_skip_template_path(relative_path):
-            continue
-
-        items.append(
-            TemplateFile(
-                layer=layer,
-                template_path=relative_path,
-                target_path=_target_path_for_template_path(relative_path),
-            )
-        )
-
-    return sorted(
-        items,
-        key=lambda item: (layer_order[item.layer], item.target_path),
-    )
-
-
-def _list_local_template_files(
-    *,
-    local_path: Path,
-    layers: list[str],
-) -> list[TemplateFile]:
-    """List template files from a local templates repository."""
-    root = local_path.expanduser().resolve()
+    """List template files from a local template tree."""
+    resolved_root = root.expanduser().resolve()
     items: list[TemplateFile] = []
 
     for layer in layers:
-        layer_root = root / layer
+        layer_root = resolved_root / layer
         if not layer_root.exists():
             continue
 
@@ -191,59 +180,45 @@ def _list_local_template_files(
     return items
 
 
-def _fetch_local_template_text(
-    *,
-    local_path: Path,
-    layer: str,
-    path: str,
-) -> str | None:
-    """Fetch template text from a local templates repository."""
-    template_path = local_path.expanduser().resolve() / layer / path
-
-    if not template_path.exists():
-        template_path_with_suffix = Path(f"{template_path}.template")
-        if not template_path_with_suffix.exists():
-            return None
-        template_path = template_path_with_suffix
-
-    if template_path.is_dir():
-        return None
-
-    try:
-        return template_path.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise TemplateFetchError(
-            f"Could not read template file: {template_path}"
-        ) from exc
-
-
-def _fetch_github_template_text(
+def _download_and_extract_snapshot(
     *,
     repository: str,
     ref: str,
-    layer: str,
-    path: str,
-) -> str | None:
-    """Fetch template text from GitHub raw content."""
-    raw_path = f"{layer}/{path}"
-    url = f"https://raw.githubusercontent.com/{repository}/{ref}/{raw_path}"
+    dest: Path,
+) -> Path:
+    """Download and extract the template repository archive once."""
+    encoded_ref = quote(ref, safe="/")
+    url = f"https://codeload.github.com/{repository}/tar.gz/{encoded_ref}"
 
-    text = _fetch_url_text(url)
-    if text is not None:
-        return text
+    archive_bytes = _fetch_archive_bytes(url)
 
-    template_url = f"{url}.template"
-    return _fetch_url_text(template_url)
+    try:
+        with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:gz") as archive:
+            archive.extractall(path=dest, filter="data")
+    except (tarfile.TarError, OSError) as exc:
+        raise TemplateFetchError(f"Could not extract template snapshot: {url}") from exc
+
+    return _snapshot_root(dest=dest, url=url)
 
 
-def _fetch_url_text(url: str) -> str | None:
-    """Fetch text from a trusted HTTPS URL, returning None for HTTP 404."""
+def _snapshot_root(*, dest: Path, url: str) -> Path:
+    """Return the single top-level directory GitHub archives wrap content in."""
+    directories = [entry for entry in dest.iterdir() if entry.is_dir()]
+
+    if len(directories) != 1:
+        raise TemplateFetchError(f"Unexpected template snapshot layout: {url}")
+
+    return directories[0]
+
+
+def _fetch_archive_bytes(url: str) -> bytes:
+    """Fetch archive bytes from a trusted GitHub archive host."""
     parsed = urlparse(url)
 
     if parsed.scheme != "https":
         raise TemplateFetchError(f"Invalid URL scheme: {url}")
 
-    if parsed.netloc != "raw.githubusercontent.com":
+    if parsed.netloc != "codeload.github.com":
         raise TemplateFetchError(f"Invalid template host: {url}")
 
     request = Request(  # noqa: S310
@@ -254,57 +229,16 @@ def _fetch_url_text(url: str) -> str | None:
     )
 
     try:
-        with urlopen(request, timeout=20) as response:  # noqa: S310
-            return response.read().decode("utf-8")
+        with urlopen(request, timeout=60) as response:  # noqa: S310
+            return response.read()
     except HTTPError as exc:
-        if exc.code == 404:
-            return None
-        raise TemplateFetchError(f"Could not fetch template file: {url}") from exc
+        raise TemplateFetchError(
+            f"Could not download template snapshot: {url}"
+        ) from exc
     except URLError as exc:
-        raise TemplateFetchError(f"Could not fetch template file: {url}") from exc
-
-
-def _fetch_json_object(url: str) -> dict[str, object]:
-    """Fetch a trusted GitHub API JSON object."""
-    parsed = urlparse(url)
-
-    if parsed.scheme != "https":
-        raise TemplateFetchError(f"Invalid URL scheme: {url}")
-
-    if parsed.netloc != "api.github.com":
-        raise TemplateFetchError(f"Invalid template API host: {url}")
-
-    request = Request(  # noqa: S310
-        url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "User-Agent": "pup-up",
-        },
-    )
-
-    try:
-        with urlopen(request, timeout=20) as response:  # noqa: S310
-            payload = json.loads(response.read().decode("utf-8"))
-    except HTTPError as exc:
-        raise TemplateFetchError(f"Could not list template files: {url}") from exc
-    except URLError as exc:
-        raise TemplateFetchError(f"Could not list template files: {url}") from exc
-    except json.JSONDecodeError as exc:
-        raise TemplateFetchError(f"Could not parse template file list: {url}") from exc
-
-    if not isinstance(payload, dict):
-        raise TemplateFetchError(f"Unexpected GitHub API response: {url}")
-
-    return cast(dict[str, object], payload)
-
-
-def _split_layer_path(path: str) -> tuple[str, str]:
-    """Split a template repository path into layer and relative path."""
-    parts = path.split("/", 1)
-    if len(parts) != 2:
-        return path, ""
-
-    return parts[0], parts[1]
+        raise TemplateFetchError(
+            f"Could not download template snapshot: {url}"
+        ) from exc
 
 
 def _target_path_for_template_path(path: str) -> str:

@@ -1,22 +1,14 @@
 # ============================================================
-# .github/workflows/deploy-zensical.yml (ALL-PY-REPOS AFTER dep groups in pyproject.toml)
+# .github/workflows/deploy-zensical.yml (ALL-PY-REPOS)
 # ============================================================
-# Updated: 2026-08-08
-#
+# Updated: 2026-08-12
+
 # WHY: Build and deploy documentation to GitHub Pages on pushes to main.
-#
-# REQ.PAGES: GitHub Pages MUST be enabled for this repository before this
-# workflow can deploy.
-#
-# SETUP: In the GitHub repository:
-# Settings -> Pages -> Build and deployment -> Source -> GitHub Actions
-#
-# WHY: actions/configure-pages reads the repository's GitHub Pages configuration.
-# If Pages is not enabled and configured for GitHub Actions, this workflow fails.
-#
-# SAFETY: This workflow intentionally does NOT enable GitHub Pages automatically.
-# Automatic enablement requires credentials with elevated repository permissions.
-# Repository Pages configuration is an explicit one-time setup step.
+# REQ: Repo Settings -> Pages -> Build and deployment -> Source:
+#      GitHub Actions
+# WHY: Without this setting, the deploy-pages action will fail with a 403.
+# REQ: Repository MUST contain .python-version.
+# WHY: The repository declares the Python version used locally and by CI.
 
 # Name shown in the repo Actions tab.
 name: Docs Deploy (Zensical)
@@ -46,12 +38,6 @@ jobs:
     name: Deploy Documentation site
     runs-on: ubuntu-latest
     timeout-minutes: 30   # WHY: Fail fast if a step hangs unexpectedly.
-    env:
-      UV_PYTHON: "3.15"   # WHY: Pin Python version for all steps in this job.
-    environment:
-      name: github-pages
-      # WHY: GitHub Pages deployments should target the github-pages environment.
-      # WHY: Enables GitHub deployment and branch protection rules for Pages.
 
     steps:
       # ============================================================
@@ -64,27 +50,24 @@ jobs:
 
       - name: A2) Configure GitHub Pages
         uses: actions/configure-pages@v6
-        # REQ: GitHub repo -> Settings -> Pages -> Build and deployment
-        #      -> Source -> GitHub Actions
-        # WHY: Reads Pages metadata needed by the build and deployment actions.
-        # SAFETY: Do not use enablement here. Automatic Pages enablement requires
-        # a token other than GITHUB_TOKEN with elevated repository permissions.
+        # WHY: Sets Pages metadata used by upload-pages-artifact and deploy-pages.
+        # OBS: Must run before the build step so base URL is available if needed.
 
       - name: A3) Install uv (with caching)
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
           # WHY: Invalidate cache only when locked dependencies change.
 
-      - name: A4) Install Python ${{ env.UV_PYTHON }} in uv
-        run: uv python install ${{ env.UV_PYTHON }}
+      - name: A4) Install project Python
+        run: uv python install
         # WHY: Ensures the pinned Python version is available in CI.
         # OBS: Does not modify the repo; uv manages the interpreter locally.
 
       - name: A5) Install all dependencies with frozen versions (in uv.lock)
         run: uv sync --frozen
-        # REQ: Used with pyproject.toml [dependency-groups] to ensure all build and test tools are available.
+        # WHY: Install dev and docs extras so all check and build tools are available.
 
       - name: A6) Show tool versions
         run: |
