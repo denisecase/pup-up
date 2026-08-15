@@ -35,6 +35,32 @@ Professional Python repositories commonly share infrastructure such as:
 `pup-up` makes it easy to keep the infrastructure files commonly used in
 professional projects current and consistent.
 
+## Benefits
+
+`pup-up` is **pull-based**.
+Each repository fetches the current baseline and applies it on its own terms.
+Nothing reaches in from a central place, so:
+
+- **Repo owner is in control.** Run it when you choose. The default is a dry run;
+  nothing is written until you pass `--write`.
+- **See before accept.** `--diff` shows exactly what would change,
+  line by line, before any file is touched.
+- **Blast radius is one repo.** A template change is applied per repository.
+- **Local differences survive.** A repo that needs to diverge just doesn't
+  take a specific file. Templates offer an optional baseline, never a mandate.
+
+Templates are fetched by **immutable commit SHA**,
+so an update always reflects the latest push to the template repository
+and every run is pinned to an exact template commit.
+
+Repo type is inferred from the presence of key files
+so no extensive configuration is needed.
+For example:
+
+- ALL REPOS
+- `pyproject.toml` indicates ALL PY REPOS
+- `pyproject.toml` + `src` indicates ALL PY SRC REPOS
+
 ## Template Source
 
 - [templates](https://github.com/pup-pack/templates)
