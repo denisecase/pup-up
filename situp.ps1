@@ -38,7 +38,6 @@ if (Test-Path "pyproject.toml") {
         exit 1
     }
 }
-
 $dirty = git status --porcelain
 if ($dirty) {
     Write-Host "ERROR: working tree is not clean. Commit or stash first." -ForegroundColor Red
@@ -58,6 +57,10 @@ function Invoke-Step {
 Invoke-Step { uvx pup-clean --delete }
 Invoke-Step { uvx pup-up --write }
 
+# pup-up may write CRLF files on Windows; normalize to match .gitattributes
+# BEFORE committing so pre-commit's LF hook doesn't rewrite them post-commit
+git add --renormalize .
+
 Invoke-Step { uv python install }
 Invoke-Step { uv lock --upgrade }
 Invoke-Step { uv sync }
@@ -65,13 +68,12 @@ Invoke-Step { uv sync }
 Invoke-Step { uv run pre-commit install }
 Invoke-Step { uv run pre-commit autoupdate }
 
+# first pass may auto-fix and exit non-zero (normal); stage, then require clean
 git add -A
 uv run pre-commit run --all-files
-# repeat if changes were made
 git add -A
 Invoke-Step { uv run pre-commit run --all-files }
 
-# run common chores
 Invoke-Step { uv run ruff format . }
 uv run ruff check . --fix
 
@@ -79,13 +81,12 @@ Invoke-Step { uv run ty check }
 Invoke-Step { uv run python -m pytest }
 Invoke-Step { uv run python -m zensical build }
 
-
 git add -A
 if (git diff --cached --quiet) {
     Write-Host "No changes to commit." -ForegroundColor Yellow
 } else {
-    Invoke-Step { git commit -m "situp.ps1: update pup-pack and dependencies" }
+    Invoke-Step { git commit -m "situp.ps1: update pup-pack scaffolding and dependencies" }
 }
 
 Write-Host "All commands executed successfully." -ForegroundColor Green
-Write-Host "If you are happy with the changes, push them to the remote repo." -ForegroundColor Green
+Write-Host "If you are happy with the changes, push them." -ForegroundColor Green
