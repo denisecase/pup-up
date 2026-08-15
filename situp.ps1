@@ -2,7 +2,7 @@
 
 <#
 ============================================================
-sit.ps1 (ALL-PY-SRC-REPOS)
+situp.ps1 (PUP-PACK REPOS)
 ============================================================
 Updated: 2026-08-15 (uses pyproject.toml [dependency-groups]; uv sync installs dev and docs groups by default)
 
@@ -10,7 +10,7 @@ Situate project dependencies, lint, test, and build docs.
 For Python tooling repos only.
 
 Run with:
-.\sit.ps1
+.\situp.ps1
 #>
 
 Set-StrictMode -Version Latest
@@ -39,25 +39,53 @@ if (Test-Path "pyproject.toml") {
     }
 }
 
-uv self update
-uv python install
-uv lock --upgrade
-uv sync
+$dirty = git status --porcelain
+if ($dirty) {
+    Write-Host "ERROR: working tree is not clean. Commit or stash first." -ForegroundColor Red
+    git status --short
+    exit 1
+}
 
-uv run pre-commit install
-uv run pre-commit autoupdate
+function Invoke-Step {
+    param([scriptblock]$Cmd)
+    & $Cmd
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "FAILED (exit $LASTEXITCODE): $Cmd" -ForegroundColor Red
+        exit $LASTEXITCODE
+    }
+}
+
+Invoke-Step { uvx pup-clean --delete }
+Invoke-Step { uvx pup-up --write }
+
+Invoke-Step { uv python install }
+Invoke-Step { uv lock --upgrade }
+Invoke-Step { uv sync }
+
+Invoke-Step { uv run pre-commit install }
+Invoke-Step { uv run pre-commit autoupdate }
 
 git add -A
 uv run pre-commit run --all-files
 # repeat if changes were made
-uv run pre-commit run --all-files
+git add -A
+Invoke-Step { uv run pre-commit run --all-files }
 
 # run common chores
-uv run ruff format .
+Invoke-Step { uv run ruff format . }
 uv run ruff check . --fix
-uv run ty check
-uv run python -m pytest
-uv run python -m zensical build
 
-Write-Host "All commands executed successfully."
-Write-Host "Run a Python module to verify .venv/ is working correctly."
+Invoke-Step { uv run ty check }
+Invoke-Step { uv run python -m pytest }
+Invoke-Step { uv run python -m zensical build }
+
+
+git add -A
+if (git diff --cached --quiet) {
+    Write-Host "No changes to commit." -ForegroundColor Yellow
+} else {
+    Invoke-Step { git commit -m "situp.ps1: update pup-pack and dependencies" }
+}
+
+Write-Host "All commands executed successfully." -ForegroundColor Green
+Write-Host "If you are happy with the changes, push them to the remote repo." -ForegroundColor Green
