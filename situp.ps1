@@ -2,7 +2,7 @@
 
 <#
 ============================================================
-situp.ps1 (PUP-PACK REPOS)
+situp.ps1 (PYPI REPOS)
 ============================================================
 Updated: 2026-08-15 (uses pyproject.toml [dependency-groups]; uv sync installs dev and docs groups by default)
 
@@ -82,7 +82,8 @@ Invoke-Step { uv run python -m pytest }
 Invoke-Step { uv run python -m zensical build }
 
 git add -A
-if (git diff --cached --quiet) {
+git diff --cached --quiet
+if ($LASTEXITCODE -eq 0) {
     Write-Host "No changes to commit." -ForegroundColor Yellow
 } else {
     Invoke-Step { git commit -m "situp.ps1: update pup-pack scaffolding and dependencies" }
