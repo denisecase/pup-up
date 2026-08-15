@@ -4,7 +4,9 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 import io
+import os
 from pathlib import Path
+import re
 import tarfile
 from tempfile import TemporaryDirectory
 from urllib.error import HTTPError, URLError
@@ -12,6 +14,32 @@ from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
 
 from pup_up.base.errors import TemplateFetchError
+
+# Matches a full Git commit SHA-1:
+# exactly 40 lowercase hexadecimal digits.
+#
+#   ^          anchor at the start of the string
+#   [0-9a-f]   one hex digit: digits 0-9 and lowercase a-f ONLY
+#              (uppercase is intentionally rejected; GitHub emits lowercase,
+#               and rejecting mixed case keeps "is this already a SHA?"
+#               unambiguous)
+#   {40}       exactly 40 of them: a full SHA-1, never an abbreviated one
+#              (a 7-char short SHA will NOT match, so it gets sent through
+#               ref resolution like any branch name:
+#               short SHAs are not valid in the codeload archive URL)
+#   $          anchor at the end
+#
+# Used to decide whether `ref` is ALREADY an immutable commit
+# (skip the API resolution) or a branch/tag name (resolve it to a SHA first).
+# Anything not a full lowercase 40-hex string, e.g.:
+# "main", "v1.2.3", a short SHA: is treated as a name to resolve.
+#
+# NOTE: `$` matches at end-of-string OR just before a trailing "\n",
+# so a value with a trailing newline would match.
+# Fine here because every value tested is either
+# `source.ref` or the `.strip()`-ed API response.
+# Use `\Z` instead of `$` if the trailing newline must be forbidden.
+_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 __all__ = [
     "TemplateFile",
@@ -84,7 +112,7 @@ def fetch_template_snapshot(*, source: TemplateSource) -> Iterator[TemplateSnaps
         return
 
     with TemporaryDirectory(prefix="pup-up-templates-") as raw_dest:
-        root = _download_and_extract_snapshot(
+        root, commit = _download_and_extract_snapshot(
             repository=source.repository,
             ref=source.ref,
             dest=Path(raw_dest),
@@ -92,7 +120,7 @@ def fetch_template_snapshot(*, source: TemplateSource) -> Iterator[TemplateSnaps
         yield TemplateSnapshot(
             root=root,
             repository=source.repository,
-            ref=source.ref,
+            ref=commit,
             from_local=False,
         )
 
@@ -147,6 +175,57 @@ def list_template_files(
     return list(by_target.values())
 
 
+def _download_and_extract_snapshot(
+    *,
+    repository: str,
+    ref: str,
+    dest: Path,
+) -> tuple[Path, str]:
+    """Download and extract the template repository archive once, by commit SHA."""
+    commit = _resolve_ref_to_commit(repository=repository, ref=ref)
+    url = f"https://codeload.github.com/{repository}/tar.gz/{commit}"
+
+    archive_bytes = _fetch_archive_bytes(url)
+
+    try:
+        with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:gz") as archive:
+            archive.extractall(path=dest, filter="data")
+    except (tarfile.TarError, OSError) as exc:
+        raise TemplateFetchError(f"Could not extract template snapshot: {url}") from exc
+
+    return _snapshot_root(dest=dest, url=url), commit
+
+
+def _fetch_archive_bytes(url: str) -> bytes:
+    """Fetch archive bytes from a trusted GitHub archive host."""
+    parsed = urlparse(url)
+
+    if parsed.scheme != "https":
+        raise TemplateFetchError(f"Invalid URL scheme: {url}")
+
+    if parsed.netloc != "codeload.github.com":
+        raise TemplateFetchError(f"Invalid template host: {url}")
+
+    request = Request(  # noqa: S310
+        url,
+        headers={
+            "User-Agent": "pup-up",
+        },
+    )
+
+    try:
+        with urlopen(request, timeout=60) as response:  # noqa: S310
+            return response.read()
+    except HTTPError as exc:
+        raise TemplateFetchError(
+            f"Could not download template snapshot: {url}"
+        ) from exc
+    except URLError as exc:
+        raise TemplateFetchError(
+            f"Could not download template snapshot: {url}"
+        ) from exc
+
+
 def _list_template_files(
     *,
     root: Path,
@@ -180,73 +259,41 @@ def _list_template_files(
     return items
 
 
-def _download_and_extract_snapshot(
-    *,
-    repository: str,
-    ref: str,
-    dest: Path,
-) -> Path:
-    """Download and extract the template repository archive once."""
-    encoded_ref = quote(ref, safe="/")
-    url = f"https://codeload.github.com/{repository}/tar.gz/{encoded_ref}"
+def _resolve_ref_to_commit(*, repository: str, ref: str) -> str:
+    """Resolve a branch/tag ref to its immutable commit SHA.
 
-    archive_bytes = _fetch_archive_bytes(url)
+    Downloading an archive by branch name returns GitHub's cached tarball for
+    that ref, which can lag a recent push by minutes. Resolving to the commit
+    SHA and downloading that archive bypasses the stale branch cache and pins
+    the run to an exact template commit.
+    """
+    if _SHA_RE.match(ref):
+        return ref
 
-    try:
-        with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r:gz") as archive:
-            archive.extractall(path=dest, filter="data")
-    except (tarfile.TarError, OSError) as exc:
-        raise TemplateFetchError(f"Could not extract template snapshot: {url}") from exc
-
-    return _snapshot_root(dest=dest, url=url)
-
-
-def _snapshot_root(*, dest: Path, url: str) -> Path:
-    """Return the single top-level directory GitHub archives wrap content in."""
-    directories = [entry for entry in dest.iterdir() if entry.is_dir()]
-
-    if len(directories) != 1:
-        raise TemplateFetchError(f"Unexpected template snapshot layout: {url}")
-
-    return directories[0]
-
-
-def _fetch_archive_bytes(url: str) -> bytes:
-    """Fetch archive bytes from a trusted GitHub archive host."""
-    parsed = urlparse(url)
-
-    if parsed.scheme != "https":
-        raise TemplateFetchError(f"Invalid URL scheme: {url}")
-
-    if parsed.netloc != "codeload.github.com":
-        raise TemplateFetchError(f"Invalid template host: {url}")
-
-    request = Request(  # noqa: S310
-        url,
-        headers={
-            "User-Agent": "pup-up",
-        },
+    api_url = (
+        f"https://api.github.com/repos/{repository}/commits/{quote(ref, safe='/')}"
     )
+    headers = {
+        "User-Agent": "pup-up",
+        "Accept": "application/vnd.github.sha",
+    }
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
 
+    request = Request(api_url, headers=headers)  # noqa: S310
     try:
-        with urlopen(request, timeout=60) as response:  # noqa: S310
-            return response.read()
+        with urlopen(request, timeout=30) as response:  # noqa: S310
+            sha = response.read().decode("utf-8").strip()
     except HTTPError as exc:
-        raise TemplateFetchError(
-            f"Could not download template snapshot: {url}"
-        ) from exc
+        raise TemplateFetchError(f"Could not resolve template ref: {api_url}") from exc
     except URLError as exc:
-        raise TemplateFetchError(
-            f"Could not download template snapshot: {url}"
-        ) from exc
+        raise TemplateFetchError(f"Could not resolve template ref: {api_url}") from exc
 
+    if not _SHA_RE.match(sha):
+        raise TemplateFetchError(f"Unexpected ref resolution for {api_url}: {sha!r}")
 
-def _target_path_for_template_path(path: str) -> str:
-    """Convert a template path to a target repository path."""
-    if path.endswith(".template"):
-        return path.removesuffix(".template")
-
-    return path
+    return sha
 
 
 def _should_skip_template_path(path: str) -> bool:
@@ -261,3 +308,21 @@ def _should_skip_template_path(path: str) -> bool:
         return True
 
     return path.endswith(".pyc")
+
+
+def _snapshot_root(*, dest: Path, url: str) -> Path:
+    """Return the single top-level directory GitHub archives wrap content in."""
+    directories = [entry for entry in dest.iterdir() if entry.is_dir()]
+
+    if len(directories) != 1:
+        raise TemplateFetchError(f"Unexpected template snapshot layout: {url}")
+
+    return directories[0]
+
+
+def _target_path_for_template_path(path: str) -> str:
+    """Convert a template path to a target repository path."""
+    if path.endswith(".template"):
+        return path.removesuffix(".template")
+
+    return path

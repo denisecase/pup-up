@@ -79,10 +79,9 @@ code .
 ```shell
 uv self update
 uv python pin 3.15
+uv python install
 uv lock --upgrade
-uv sync --upgrade
-# if concurrent dev:
-uv pip install -e ../pup-core
+uv sync
 
 uv run pre-commit install
 uv run pre-commit autoupdate

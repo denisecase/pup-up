@@ -13,6 +13,30 @@ and this project adheres to **[Semantic Versioning](https://semver.org/spec/v2.0
 
 ---
 
+## [0.1.4] - 2026-08-15
+
+### Fixed
+
+- `pup-up` now pulls current template files.
+  Downloading the template archive by branch or tag name
+  returned GitHub's cached tarball, which could
+  lag a recent push to `pup-pack/templates` by minutes.
+  The ref is now resolved to its immutable commit SHA
+  and that archive is fetched, bypassing the stale
+  branch cache.
+
+### Changed
+
+- Template snapshots are now pinned to an exact commit:
+  `TemplateSnapshot.ref` records the resolved 40-character SHA
+  rather than the requested branch/tag,
+  making each run reproducible and the applied template commit inspectable.
+- Ref resolution adds one `api.github.com` request per run.
+  `GITHUB_TOKEN` / `GH_TOKEN` are honored for a higher rate limit;
+  a full SHA passed as the ref skips resolution entirely.
+
+---
+
 ## [0.1.3] - 2026-08-13
 
 - updated actions (one source of python version in project root)
@@ -118,10 +142,14 @@ Follow these steps when creating a new release.
 
 ### Task 2. Validate
 
-````shell
+```shell
+uv self update
+uv python install
 uv lock --upgrade
 uv sync
+
 uv run pre-commit install
+uv run pre-commit autoupdate
 
 uv run pup-up
 
@@ -140,7 +168,7 @@ uv build
 uvx twine check dist/*
 ```
 
-### Task 4. Commit, push, tag
+### Task 3. Commit, push, tag
 
 ```shell
 git add -A
@@ -164,7 +192,8 @@ git push origin :refs/tags/vX.Z.Y
 
 ## Links
 
-[Unreleased]: https://github.com/pup-pack/pup-up/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/pup-pack/pup-up/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/pup-pack/pup-up/releases/tag/v0.1.4
 [0.1.3]: https://github.com/pup-pack/pup-up/releases/tag/v0.1.3
 [0.1.1]: https://github.com/pup-pack/pup-up/releases/tag/v0.1.1
 [0.1.0]: https://github.com/pup-pack/pup-up/releases/tag/v0.1.0

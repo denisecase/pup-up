@@ -3,6 +3,7 @@
 import io
 from pathlib import Path
 import tarfile
+from urllib.request import Request
 
 import pytest
 
@@ -55,8 +56,15 @@ def test_snapshot_from_local_does_not_download(
 def test_snapshot_downloads_once_and_strips_prefix(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A remote source downloads one archive and reads from the stripped root."""
+    """A remote source resolves the ref to a SHA, downloads one archive, and
+    reads from the stripped root."""
+    resolved_sha = "a" * 40
     calls: list[str] = []
+
+    def _fake_resolve(*, repository: str, ref: str) -> str:
+        assert repository == "pup-pack/templates"
+        assert ref == "v0.1.1"
+        return resolved_sha
 
     def _fake_download(url: str) -> bytes:
         calls.append(url)
@@ -67,13 +75,14 @@ def test_snapshot_downloads_once_and_strips_prefix(
             }
         )
 
+    monkeypatch.setattr(fetch, "_resolve_ref_to_commit", _fake_resolve)
     monkeypatch.setattr(fetch, "_fetch_archive_bytes", _fake_download)
 
     source = TemplateSource(repository="pup-pack/templates", ref="v0.1.1")
 
     with fetch_template_snapshot(source=source) as snapshot:
         assert snapshot.from_local is False
-        assert snapshot.ref == "v0.1.1"
+        assert snapshot.ref == resolved_sha
 
         files = {
             file.target_path: file
@@ -87,7 +96,7 @@ def test_snapshot_downloads_once_and_strips_prefix(
         assert text == 'repo = "{{ repo_name }}"\n'
 
     assert len(calls) == 1
-    assert calls[0].endswith("/tar.gz/v0.1.1")
+    assert calls[0].endswith(f"/tar.gz/{resolved_sha}")
     assert not snapshot_root.exists()
 
 
@@ -136,3 +145,67 @@ def test_fetch_template_text_returns_none_for_missing(
 
     with fetch_template_snapshot(source=source) as snapshot:
         assert fetch_template_text(snapshot=snapshot, template_file=missing) is None
+
+
+def test_resolve_ref_short_circuits_full_sha(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A full 40-hex ref is already immutable: no API call is made."""
+
+    def _no_network(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("must not hit the network for a full SHA")
+
+    monkeypatch.setattr(fetch, "urlopen", _no_network)
+
+    sha = "0123456789abcdef0123456789abcdef01234567"
+    assert fetch._resolve_ref_to_commit(repository="pup-pack/templates", ref=sha) == sha
+
+
+def test_resolve_ref_queries_api_for_branch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A branch name is resolved to a SHA via the commits API."""
+    resolved = "b" * 40
+    seen: dict[str, str] = {}
+
+    class _Resp:
+        def __enter__(self) -> _Resp:
+            return self
+
+        def __exit__(self, *_exc: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return (resolved + "\n").encode("utf-8")  # trailing newline is stripped
+
+    def _fake_urlopen(request: Request, timeout: int = 0) -> _Resp:
+        seen["url"] = request.full_url
+        return _Resp()
+
+    monkeypatch.setattr(fetch, "urlopen", _fake_urlopen)
+
+    got = fetch._resolve_ref_to_commit(repository="pup-pack/templates", ref="main")
+
+    assert got == resolved
+    assert seen["url"] == "https://api.github.com/repos/pup-pack/templates/commits/main"
+
+
+def test_resolve_ref_rejects_non_sha_response(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A response that isn't a 40-hex SHA is a fetch error, not a bad URL."""
+
+    class _Resp:
+        def __enter__(self) -> _Resp:
+            return self
+
+        def __exit__(self, *_exc: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b"not-a-sha"
+
+    monkeypatch.setattr(fetch, "urlopen", lambda *_a, **_k: _Resp())
+
+    with pytest.raises(TemplateFetchError):
+        fetch._resolve_ref_to_commit(repository="pup-pack/templates", ref="main")
