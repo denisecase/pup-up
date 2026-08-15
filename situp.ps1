@@ -54,8 +54,8 @@ function Invoke-Step {
     }
 }
 
-Invoke-Step { uvx pup-clean --delete }
-Invoke-Step { uvx pup-up --write }
+Invoke-Step { uvx pup-clean@latest --delete }
+Invoke-Step { uvx pup-up@latest --write }
 
 # pup-up may write CRLF files on Windows; normalize to match .gitattributes
 # BEFORE committing so pre-commit's LF hook doesn't rewrite them post-commit
